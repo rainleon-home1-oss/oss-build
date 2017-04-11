@@ -9,7 +9,7 @@ initscript {
   }
   dependencies {
     // Add dependency for build script, so we can access maven's settings.xml from our build script.
-    classpath 'cn.home1.tools:maven-settings-decoder:1.0.0.OSS'
+    classpath 'cn.home1.tools:maven-settings-decoder:1.0.1.OSS'
     classpath 'org.ajoberstar:grgit:1.7.0'
     // Add dependency for build script, so we can access Git from our build script.
   }
@@ -17,7 +17,7 @@ initscript {
 
 allprojects {
   // execute after settings.gradle
-  println "init.gradle allprojects ${project.name}"
+  //println "init.gradle allprojects ${project.name}"
 
   if (rootProject.name == project.name) {
     def dotGit = new File(".git");
@@ -45,9 +45,11 @@ allprojects {
 
     def envMavenOpts = System.getenv("MAVEN_OPTS")
     if (envMavenOpts) {
-      def mirror = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.mirror=([^\\s]+)").replace("-D${ext.infrastructure}-nexus.mirror=", "")
-      def repositories = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.repositories=([^\\s]+)").replace("-D${ext.infrastructure}-nexus.repositories=", "")
-      ext.nexusMirror = mirror ? mirror : 'http://nexus.local:28081/nexus/repository/maven-public/'
+      def optionMirror = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.mirror=([^\\s]+)");
+      def mirror = optionMirror ? optionMirror.replace("-D${ext.infrastructure}-nexus.mirror=", "") : null
+      def optionRepositories = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.repositories=([^\\s]+)")
+      def repositories = optionRepositories ? optionRepositories.replace("-D${ext.infrastructure}-nexus.repositories=", "") : null
+      ext.nexusMirror = mirror ? mirror : null //http://nexus.local:28081/nexus/repository/maven-public/
       ext.nexusRepositories = repositories ? repositories : 'http://nexus.local:28081/nexus/repository'
     } else {
       ext.nexusMirror = 'http://nexus.local:28081/nexus/repository/maven-public/'
@@ -84,8 +86,11 @@ allprojects {
     println "nexusRepositories: " + ext.nexusRepositories
     println "revision: " + ext.revision
     println "settingsFileOpt: " + ext.settingsFileOpt + ", securityFileOpt: " + ext.securityFileOpt
-    println "${ext.infrastructure}-nexus-releases username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/username/text()")
-    println "${ext.infrastructure}-nexus-snapshots username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-snapshots']/username/text()")
+    // TODO fix nexus.local-releases and nexus.local-snapshots
+    if ("github" != "${ext.infrastructure}") {
+      println "${ext.infrastructure}-nexus-releases username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/username/text()")
+      println "${ext.infrastructure}-nexus-snapshots username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-snapshots']/username/text()")
+    }
     if ( gradle.ext.springBootApi && gradle.ext.springBootVersion ) {
       ext.springBootApi = gradle.ext.springBootApi
       ext.springBootVersion = gradle.ext.springBootVersion
@@ -110,6 +115,8 @@ allprojects {
     maven { url 'http://repo.spring.io/release' }
     maven { url 'http://repo.spring.io/milestone' }
     maven { url 'http://repo.spring.io/snapshot' }
+    maven { url 'https://oss.sonatype.org/content/groups/public' }
+    //maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
   }
 
 //  apply plugin: 'maven'
@@ -155,7 +162,7 @@ allprojects {
   }
 
   subprojects {
-    println "init.gradle allprojects ${project.name}"
+    //println "init.gradle subprojects ${project.name}"
 
     project.version = rootProject.version
 

@@ -33,7 +33,7 @@ DEPLOY_LOCAL_REPO_IF_NEED="${HOME}/local-deploy/${COMMIT_ID}"
 
 echo "maven_settings: ${MAVEN_SETTINGS} effective-pom: ${EFFECTIVE_POM_FILE}"
 # log output avoid travis timeout
-mvn ${MAVEN_SETTINGS} help:effective-pom
+mvn ${MAVEN_SETTINGS} help:effective-pom | grep 'Downloading:' | awk '!(NR%10)'
 mvn ${MAVEN_SETTINGS} help:effective-pom > ${EFFECTIVE_POM_FILE}
 
 export LOGGING_LEVEL_="INFO"
@@ -55,7 +55,7 @@ maven_pull_base_images() {
 maven_analysis() {
     if [[ "$(basename $(pwd))" == *-config ]] && ([ -f "application.yml" ] || [ -f "application.properties" ]); then
         echo "maven_analysis config repository"
-        mvn ${MAVEN_SETTINGS} -U clean package
+        mvn ${MAVEN_SETTINGS} -U clean package | grep -v 'Downloading:' | grep -Ev '^Generating .+\.html\.\.\.'
     else
         echo "maven_analysis sonar"
         mvn ${MAVEN_SETTINGS} sonar:sonar
@@ -76,10 +76,12 @@ maven_test_and_build() {
         echo "maven_test_and_build MAVEN_OPTS: ${MAVEN_OPTS}"
 
         maven_pull_base_images
-        mvn ${MAVEN_SETTINGS} -U clean org.apache.maven.plugins:maven-antrun-plugin:run@clean-local-deploy-dir deploy
+        # reduce log avoid travis 4MB limit
+        mvn ${MAVEN_SETTINGS} -U clean org.apache.maven.plugins:maven-antrun-plugin:run@clean-local-deploy-dir deploy | grep -v 'Downloading:' | grep -Ev '^Generating .+\.html\.\.\.'
     else
         maven_pull_base_images
-        mvn ${MAVEN_SETTINGS} -U clean install
+        # reduce log avoid travis 4MB limit
+        mvn ${MAVEN_SETTINGS} -U clean install | grep -v 'Downloading:' | grep -Ev '^Generating .+\.html\.\.\.'
     fi
 }
 

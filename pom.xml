@@ -3,11 +3,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.yirendai.oss</groupId>
+    <groupId>com.yirendai.infra</groupId>
     <artifactId>oss-build</artifactId>
     <version>1.0.8.OSS-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <url>https://github.com/Yirendai/oss-build</url>
+    <url>https://github.com/home1-oss/oss-build</url>
 
     <developers>
         <developer>
@@ -36,24 +36,20 @@
         </developer>
     </developers>
 
-    <!--issueManagement>
-        <system>Gitlab Issues</system>
-        <url>http://gitlab.internal/infra/oss-build/issues</url>
-    </issueManagement-->
     <issueManagement>
-        <system>JIRA</system>
-        <url>http://jira7.internal/browse/${jira.projectKey}</url>
+        <system>GitHub Issues</system>
+        <url>https://github.com/home1-oss/oss-build/issues</url>
     </issueManagement>
 
     <ciManagement>
-        <system>Gitlab CI</system>
-        <url>http://gitlab.internal/infra/oss-build/builds</url>
+        <system>Travis CI</system>
+        <url>https://travis-ci.org/home1-oss/oss-build</url>
     </ciManagement>
 
     <scm>
-        <url>https://github.com/Yirendai/oss-build</url>
-        <connection>scm:git:https://github.com/Yirendai/oss-build.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/Yirendai/oss-build.git</developerConnection>
+        <url>https://github.com/home1-oss/oss-build</url>
+        <connection>scm:git:https://github.com/home1-oss/oss-build.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/home1-oss/oss-build.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -102,6 +98,18 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>oss-github-maven-plugins</id>
+            <url>https://raw.github.com/home1-oss/maven-plugins/mvn-repo</url>
+            <name>Forked github-maven-plugins that upload faster</name>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
         </pluginRepository>
     </pluginRepositories>
 
@@ -339,7 +347,7 @@
                 <plugin>
                     <groupId>com.github.github</groupId>
                     <artifactId>site-maven-plugin</artifactId>
-                    <version>0.12</version>
+                    <version>0.13.0.OSS-M1</version>
                 </plugin>
 
                 <plugin>
@@ -759,7 +767,8 @@
                                     <version>[${java.version}.0,)</version>
                                 </requireJavaVersion>
                                 <requireMavenVersion>
-                                    <version>[3.3.9,)</version>
+                                    <!-- travis-ci uses 3.2.5 not 3.3.9  -->
+                                    <version>[3.2.5,)</version>
                                 </requireMavenVersion>
                                 <!--requireUpperBoundDeps-->
                                 <dependencyConvergence>
@@ -918,6 +927,72 @@
             <properties>
                 <site.path>${project.artifactId}-${build.publish.channel}</site.path>
             </properties>
+        </profile>
+        <profile>
+            <id>github_infrastructure</id>
+            <activation>
+                <property>
+                    <name>infrastructure</name>
+                    <value>github</value>
+                </property>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <wagon.merge-maven-repos.target>${github-nexus.repositories}/${build.publish.channel}s</wagon.merge-maven-repos.target>
+                <wagon.merge-maven-repos.targetId>github-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
+                <docker-maven.useConfigFile>true</docker-maven.useConfigFile>
+                <!-- id as in your settings.xml -->
+                <github.global.server>github</github.global.server>
+                <!--github.global.oauth2Token>${env.GITHUB_GIT_SERVICE_TOKEN}</github.global.oauth2Token-->
+                <github.global.oauth2Token>${env.GITHUB_GIT_SERVICE_TOKEN}</github.global.oauth2Token>
+                <github.site.path>${project.version}</github.site.path>
+                <!-- In child projects
+                Do not add url. Let it inherit from parent.
+                <github.site.path>${project.version}/${project.artifactId}</github.site.path>
+                -->
+                <maven.site.deploy.skip>true</maven.site.deploy.skip>
+            </properties>
+            <distributionManagement>
+                <repository>
+                    <id>github-nexus-releases</id>
+                    <url>${github-nexus.repositories}/releases</url>
+                </repository>
+                <snapshotRepository>
+                    <id>github-nexus-snapshots</id>
+                    <url>${github-nexus.repositories}/snapshots</url>
+                </snapshotRepository>
+                <!-- Do mvn site site:stage -DstagingDirectory=/tmp/path first,
+                then manually add/push to the gh-pages branch on GitHub -->
+                <!--site>
+                    <id>github-site</id>
+                    <url>http://${env.GITHUB_USERNAME}.github.io/${project.artifactId}/${project.version}</url>
+                </site-->
+            </distributionManagement>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.github</groupId>
+                        <artifactId>site-maven-plugin</artifactId>
+                        <configuration>
+                            <message>Creating site for ${project.artifactId}-${project.version}</message>
+                            <path>${github.site.path}</path>
+                            <!--path>${project.distributionManagement.site.url}</path-->
+                            <merge>true</merge>
+                            <noJekyll>true</noJekyll>
+                            <repositoryOwner>${env.GITHUB_USERNAME}</repositoryOwner>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>site</goal>
+                                </goals>
+                                <!--phase>site</phase-->
+                                <phase>site-deploy</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>local_infrastructure</id>
@@ -1940,14 +2015,27 @@
                     <name>github-publish</name>
                 </property>
             </activation>
+            <properties>
+                <!-- id as in your settings.xml -->
+                <github.global.server>github</github.global.server>
+                <github.global.oauth2Token>${env.GITHUB_GIT_SERVICE_TOKEN}</github.global.oauth2Token>
+                <github.site.path>${project.version}</github.site.path>
+                <!-- In child projects
+                Do not add url. Let it inherit from parent.
+                <github.site.path>${project.version}/${project.artifactId}</github.site.path>
+                -->
+            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>com.github.github</groupId>
                         <artifactId>site-maven-plugin</artifactId>
                         <configuration>
-                            <message>Building site for ${project.artifactId}-${project.version}</message>
-                            <server>github</server>
+                            <message>Creating site for ${project.artifactId}-${project.version}</message>
+                            <path>${github.site.path}</path>
+                            <merge>true</merge>
+                            <noJekyll>true</noJekyll>
+                            <repositoryOwner>${env.GITHUB_USERNAME}</repositoryOwner>
                         </configuration>
                         <executions>
                             <execution>

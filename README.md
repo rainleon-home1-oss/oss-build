@@ -1,8 +1,9 @@
+[![Build Status](https://travis-ci.org/chshawkn/oss-build.svg?branch=build_on_travisci)](https://travis-ci.org/chshawkn/oss-build)
+
 -----
 如果你正在通过git服务查看此文档，请移步项目网站或gitbook查看文档，因为git服务生成的文档链接有问题。
 + [gitbook](http://mvn-site.internal/oss-build-develop/gitbook)
-+ [RELEASE版网站](http://mvn-site.internal/oss-build/staging)
-+ [SNAPSHOT版网站](http://mvn-site.internal/oss-build-develop/staging)
++ [maven网站](http://home1-oss.github.io/oss-build)
 -----
 
 # oss是什么

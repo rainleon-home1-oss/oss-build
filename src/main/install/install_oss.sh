@@ -789,6 +789,9 @@ config_hosts
 config_ssh
 config_profile
 
+GITHUB_GIT_SERVICE_DOMAIN="github.com"
+read_secret_input "GITHUB_GIT_SERVICE_TOKEN" "Please input GITHUB_GIT_SERVICE_TOKEN (oauth token)" "${GITHUB_GIT_SERVICE_TOKEN}"
+
 read_plain_input "INTERNAL_DOCKER_REGISTRY" "Please input INTERNAL_DOCKER_REGISTRY (domain)" "registry.docker.internal"
 echo "INTERNAL_DOCKER_REGISTRY: ${INTERNAL_DOCKER_REGISTRY}"
 INTERNAL_DOCKER_REGISTRY_AUTH=$(cat ~/.docker/config.json | jq -r ".auths[\"${INTERNAL_DOCKER_REGISTRY}\"].auth")
@@ -799,6 +802,7 @@ else
     echo "Docker already login."
 fi
 
+# TODO nexus2 is not fileserver
 read_plain_input "INTERNAL_FILESERVER" "Please input INTERNAL_FILESERVER (http[s]://domain)" "http://nexus2.internal"
 echo "INTERNAL_FILESERVER: ${INTERNAL_FILESERVER}"
 
@@ -826,35 +830,36 @@ else
 fi
 
 # fork projects
-if [ ! -f oss_repositories.sh ]; then
-    eval "$(curl -H 'Cache-Control: no-cache' -s -L ${INTERNAL_GIT_SERVICE}/infra/oss-build/raw/develop/src/main/install/oss_repositories.sh)"
-else
-    . oss_repositories.sh
-fi
-user_group=$(echo ${INTERNAL_GITLAB_SESSION} | jq -r ".username")
-#echo "OSS_REPOSITORIES_DICT: ${!OSS_REPOSITORIES_DICT[@]}"
-for repository in ${!OSS_REPOSITORIES_DICT[@]}; do
-    original_group=$(echo ${OSS_REPOSITORIES_DICT[${repository}]} | sed -E 's#^/([^/]+)/[^/]+#\1#')
-    #echo "check or fork repository from ${original_group}/${repository} to ${user_group}/${repository}"
-    original_project_info=$(gitlab_project_info "${INTERNAL_GIT_SERVICE}" "${original_group}" "${repository}" "${INTERNAL_GIT_SERVICE_TOKEN}")
-    #echo "original_project_info: ${original_project_info}"
-    original_project_id=$(echo "${original_project_info}" | jq -r ".id")
-    #echo "original_project_id: ${original_project_id}"
-    forked_project_info=$(gitlab_project_info "${INTERNAL_GIT_SERVICE}" "${user_group}" "${repository}" "${INTERNAL_GIT_SERVICE_TOKEN}")
-    #echo "forked_project_info: ${forked_project_info}"
-    forked_project_id=$(echo "${forked_project_info}" | jq -r ".id")
-    if [ -z "${forked_project_id}" ] || [ "null" == "${forked_project_id}" ]; then
-        fork_response=$(curl -s -L -X POST "${INTERNAL_GIT_SERVICE}/api/v3/projects/fork/${original_project_id}?private_token=${INTERNAL_GIT_SERVICE_TOKEN}")
-        #echo "fork_response: ${fork_response}"
-        forked_project_info=$(gitlab_project_info "${INTERNAL_GIT_SERVICE}" "${user_group}" "${repository}" "${INTERNAL_GIT_SERVICE_TOKEN}")
-        #echo "forked_project_info: ${forked_project_info}"
-        forked_project_id=$(echo "${forked_project_info}" | jq -r ".id")
-        echo "newly forked_project: ${forked_project_id} $(echo ${forked_project_info} | jq -r '.http_url_to_repo')"
-    else
-        forked_project_info=$(gitlab_project_info "${INTERNAL_GIT_SERVICE}" "${user_group}" "${repository}" "${INTERNAL_GIT_SERVICE_TOKEN}")
-        echo "already forked_project: ${forked_project_id} $(echo ${forked_project_info} | jq -r '.http_url_to_repo')"
-    fi
-done
+# TODO fork github projects
+#if [ ! -f oss_repositories.sh ]; then
+#    eval "$(curl -H 'Cache-Control: no-cache' -s -L ${GITHUB_GIT_SERVICE}/home1-oss/oss-build/raw/develop/src/main/install/oss_repositories.sh)"
+#else
+#    . oss_repositories.sh
+#fi
+#user_group=$(echo ${INTERNAL_GITLAB_SESSION} | jq -r ".username")
+##echo "OSS_REPOSITORIES_DICT: ${!OSS_REPOSITORIES_DICT[@]}"
+#for repository in ${!OSS_REPOSITORIES_DICT[@]}; do
+#    original_group=$(echo ${OSS_REPOSITORIES_DICT[${repository}]} | sed -E 's#^/([^/]+)/[^/]+#\1#')
+#    #echo "check or fork repository from ${original_group}/${repository} to ${user_group}/${repository}"
+#    original_project_info=$(gitlab_project_info "${INTERNAL_GIT_SERVICE}" "${original_group}" "${repository}" "${INTERNAL_GIT_SERVICE_TOKEN}")
+#    #echo "original_project_info: ${original_project_info}"
+#    original_project_id=$(echo "${original_project_info}" | jq -r ".id")
+#    #echo "original_project_id: ${original_project_id}"
+#    forked_project_info=$(gitlab_project_info "${INTERNAL_GIT_SERVICE}" "${user_group}" "${repository}" "${INTERNAL_GIT_SERVICE_TOKEN}")
+#    #echo "forked_project_info: ${forked_project_info}"
+#    forked_project_id=$(echo "${forked_project_info}" | jq -r ".id")
+#    if [ -z "${forked_project_id}" ] || [ "null" == "${forked_project_id}" ]; then
+#        fork_response=$(curl -s -L -X POST "${INTERNAL_GIT_SERVICE}/api/v3/projects/fork/${original_project_id}?private_token=${INTERNAL_GIT_SERVICE_TOKEN}")
+#        #echo "fork_response: ${fork_response}"
+#        forked_project_info=$(gitlab_project_info "${INTERNAL_GIT_SERVICE}" "${user_group}" "${repository}" "${INTERNAL_GIT_SERVICE_TOKEN}")
+#        #echo "forked_project_info: ${forked_project_info}"
+#        forked_project_id=$(echo "${forked_project_info}" | jq -r ".id")
+#        echo "newly forked_project: ${forked_project_id} $(echo ${forked_project_info} | jq -r '.http_url_to_repo')"
+#    else
+#        forked_project_info=$(gitlab_project_info "${INTERNAL_GIT_SERVICE}" "${user_group}" "${repository}" "${INTERNAL_GIT_SERVICE_TOKEN}")
+#        echo "already forked_project: ${forked_project_id} $(echo ${forked_project_info} | jq -r '.http_url_to_repo')"
+#    fi
+#done
 
 read_plain_input "INTERNAL_JIRA" "Please input INTERNAL_JIRA (http[s]://domain)" "http://jira7.internal"
 echo "INTERNAL_JIRA: ${INTERNAL_JIRA}"
@@ -892,6 +897,15 @@ export BUILD_PUBLISH_CHANNEL=\"snapshot\"
 export BUILD_SITE=\"true\"
 export BUILD_TEST_FAILURE_IGNORE=\"false\"
 
+# TODO GITHUB_DOCKER_REGISTRY GITHUB_FILESERVER ?
+export GITHUB_DOCKER_REGISTRY=\"\"
+export GITHUB_FILESERVER=\"\"
+export GITHUB_GIT_SERVICE=\"https://github.com\"
+export GITHUB_GIT_SERVICE_TOKEN=\"${GITHUB_GIT_SERVICE_TOKEN}\"
+# No GITHUB_JIRA
+# No GITHUB_MVNSITE
+export GITHUB_NEXUS=\"https://oss.sonatype.org\"
+export GITHUB_SONAR=\"https://sonarqube.com\"
 export INTERNAL_DOCKER_REGISTRY=\"${INTERNAL_DOCKER_REGISTRY}\"
 export INTERNAL_FILESERVER=\"${INTERNAL_FILESERVER}\"
 export INTERNAL_GIT_SERVICE=\"${INTERNAL_GIT_SERVICE}\"
@@ -903,6 +917,7 @@ export LOCAL_DOCKER_REGISTRY=\"registry.docker.local\"
 export LOCAL_FILESERVER=\"http://local-fileserver:80\"
 export LOCAL_GIT_SERVICE=\"http://local-git:20080\"
 export LOCAL_GIT_SERVICE_TOKEN=\"\"
+# No LOCAL_JIRA
 export LOCAL_MVNSITE=\"dav:http://local-mvnsite:28081/nexus/repository/mvnsite\"
 export LOCAL_NEXUS=\"http://nexus.local:28081/nexus\"
 export LOCAL_SONAR=\"http://local-sonarqube:9000\"
@@ -954,11 +969,13 @@ fi
 export MAVEN_OPTS=\"\"
 export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dbuild.publish.channel=\${BUILD_PUBLISH_CHANNEL}\"
 # 此处GIT_SERVICE相关设置 假设公司内部和本地git服务访问raw文件的方式相同, 即 <项目>/raw/<ref>/<文件路径>, 如假设不满足需单独设置
-export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dcheckstyle.config.location=\${GIT_SERVICE}/infra/oss-build/raw/master/src/main/checkstyle/google_checks_6.19.xml\"
+export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dcheckstyle.config.location=\${GIT_SERVICE}/home1-oss/oss-build/raw/master/src/main/checkstyle/google_checks_6.19.xml\"
 export MAVEN_OPTS=\"\${MAVEN_OPTS} -Ddocker.registry=\${DOCKER_REGISTRY}\"
 # 此处frontend设置 假设公司内部和本地都使用nexus3, 并且contextPath都为nexus, 如假设不满足需单独设置
 export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dfrontend.nodeDownloadRoot=\${NEXUS}/nexus/repository/npm-dist/\"
 export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dfrontend.npmDownloadRoot=\${NEXUS}/nexus/repository/npm-public/npm/-/\"
+export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dgithub-nexus.repositories=\${GITHUB_NEXUS}/content/repositories\"
+export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dgithub-sonar.host.url=\${GITHUB_SONAR}\"
 export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dinternal-mvnsite.prefix=\${INTERNAL_MVNSITE}\"
 export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dinternal-nexus.mirror=\${INTERNAL_NEXUS}/content/groups/public/\"
 export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dinternal-nexus.repositories=\${INTERNAL_NEXUS}/content/repositories\"
@@ -969,7 +986,7 @@ export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dnexus.local.repositories=\${LOCAL_NEXUS}/re
 export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dlocal-sonar.host.url=\${LOCAL_SONAR}\"
 export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dmaven.test.failure.ignore=\${BUILD_TEST_FAILURE_IGNORE}\"
 # 此处GIT_SERVICE相关设置 假设公司内部和本地git服务访问raw文件的方式相同, 即 <项目>/raw/<ref>/<文件路径>, 如假设不满足需单独设置
-export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dpmd.ruleset.location=\${GIT_SERVICE}/infra/oss-build/raw/master/src/main/pmd/pmd-ruleset-5.3.5.xml\"
+export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dpmd.ruleset.location=\${GIT_SERVICE}/home1-oss/oss-build/raw/master/src/main/pmd/pmd-ruleset-5.3.5.xml\"
 export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dinfrastructure=\${INFRASTRUCTURE}\"
 export MAVEN_OPTS=\"\${MAVEN_OPTS} -Dsite=\${BUILD_SITE}\"
 export MAVEN_OPTS=\"\${MAVEN_OPTS} -Duser.language=zh -Duser.region=CN -Dfile.encoding=UTF-8 -Duser.timezone=Asia/Shanghai\"
@@ -977,18 +994,24 @@ export MAVEN_OPTS=\"\${MAVEN_OPTS} -Duser.language=zh -Duser.region=CN -Dfile.en
 function oss_vm_options() {
     local vm_options=""
     vm_options=\"\${vm_options} -Dbuild.publish.channel=snapshot\"
-    vm_options=\"\${vm_options} -Dcheckstyle.config.location=\${GIT_SERVICE}/infra/oss-build/raw/master/src/main/checkstyle/google_checks_6.19.xml\"
+    vm_options=\"\${vm_options} -Dcheckstyle.config.location=\${GIT_SERVICE}/home1-oss/oss-build/raw/master/src/main/checkstyle/google_checks_6.19.xml\"
     vm_options=\"\${vm_options} -Ddocker.registry=\${DOCKER_REGISTRY}\"
     vm_options=\"\${vm_options} -Dfrontend.nodeDownloadRoot=\${NEXUS}/nexus/repository/npm-dist/\"
     vm_options=\"\${vm_options} -Dfrontend.npmDownloadRoot=\${NEXUS}/nexus/repository/npm-public/npm/-/\"
+    vm_options=\"\${vm_options} -Dgithub-nexus.repositories=\${GITHUB_NEXUS}/content/repositories\"
+    vm_options=\"\${vm_options} -Dgithub-sonar.host.url=\${GITHUB_SONAR}\"
     vm_options=\"\${vm_options} -Dinternal-mvnsite.prefix=\${INTERNAL_MVNSITE}\"
     vm_options=\"\${vm_options} -Dinternal-nexus.mirror=\${INTERNAL_NEXUS}/content/groups/public/\"
     vm_options=\"\${vm_options} -Dinternal-nexus.repositories=\${INTERNAL_NEXUS}/content/repositories\"
     vm_options=\"\${vm_options} -Dlocal-mvnsite.prefix=\${LOCAL_MVNSITE}\"
     vm_options=\"\${vm_options} -Dnexus.local.mirror=\${LOCAL_NEXUS}/repository/maven-public/\"
     vm_options=\"\${vm_options} -Dnexus.local.repositories=\${LOCAL_NEXUS}/repository\"
-    vm_options=\"\${vm_options} -Dpmd.ruleset.location=\${GIT_SERVICE}/infra/oss-build/raw/master/src/main/pmd/pmd-ruleset-5.3.5.xml\"
+    vm_options=\"\${vm_options} -Dlocal-sonar.host.url=\${LOCAL_SONAR}\"
+    vm_options=\"\${vm_options} -Dmaven.test.failure.ignore=\${BUILD_TEST_FAILURE_IGNORE}\"
+    vm_options=\"\${vm_options} -Dpmd.ruleset.location=\${GIT_SERVICE}/home1-oss/oss-build/raw/master/src/main/pmd/pmd-ruleset-5.3.5.xml\"
     vm_options=\"\${vm_options} -Dinfrastructure=\${INFRASTRUCTURE}\"
+    vm_options=\"\${vm_options} -Dsite=\${BUILD_SITE}\"
+    vm_options=\"\${vm_options} -Duser.language=zh -Duser.region=CN -Dfile.encoding=UTF-8 -Duser.timezone=Asia/Shanghai\"
     echo \"\${vm_options}\"
 }
 alias oss-vmopts=\"oss_vm_options\"
@@ -1022,9 +1045,10 @@ done
 chown ${USER} ${HOME}/.ssh/internal-git && chmod 600 ${HOME}/.ssh/internal-git
 
 # maven settings
-OSS_MAVEN_SETTINGS_LOCATION="${INTERNAL_GIT_SERVICE}/infra/oss-build/raw/master/src/main/maven/settings.xml"
+OSS_MAVEN_SETTINGS_LOCATION="${GITHUB_GIT_SERVICE}/home1-oss/oss-build/raw/master/src/main/maven/settings.xml"
 mkdir -p ${HOME}/.m2/
 if [ ! -f ${HOME}/.m2/settings.xml ]; then
+    # TODO echo -e 在屏幕上留下 -e
     echo -e '\n'
     echo "未找到'${HOME}/.m2/settings.xml'文件, 自动从'${OSS_MAVEN_SETTINGS_LOCATION}'下载."
     curl -H 'Cache-Control: no-cache' -s -o ${HOME}/.m2/settings.xml -L ${OSS_MAVEN_SETTINGS_LOCATION}
@@ -1034,7 +1058,7 @@ else
     read -p "检查'${HOME}/.m2/settings.xml'完成后按 ENTER 键继续"
 fi
 
-OSS_MAVEN_SETTINGS_SECURITY_LOCATION="${INTERNAL_GIT_SERVICE}/infra/oss-build/raw/master/src/main/maven/settings-security.xml"
+OSS_MAVEN_SETTINGS_SECURITY_LOCATION="${GITHUB_GIT_SERVICE}/home1-oss/oss-build/raw/master/src/main/maven/settings-security.xml"
 if [ ! -f ${HOME}/.m2/settings-security.xml ]; then
     echo -e '\n'
     echo "未找到'${HOME}/.m2/settings-security.xml'文件, 自动从'${OSS_MAVEN_SETTINGS_SECURITY_LOCATION}'下载."
@@ -1069,7 +1093,7 @@ if [ -z \"\${INFRASTRUCTURE}\" ]; then
 fi
 
 if [ ! -f oss_repositories.sh ]; then
-    eval \"\$(curl -H 'Cache-Control: no-cache' -s -L ${INTERNAL_GIT_SERVICE}/infra/oss-build/raw/develop/src/main/install/oss_repositories.sh)\"
+    eval \"\$(curl -H 'Cache-Control: no-cache' -s -L ${GITHUB_GIT_SERVICE}/home1-oss/oss-build/raw/develop/src/main/install/oss_repositories.sh)\"
 else
     . oss_repositories.sh
 fi
@@ -1086,42 +1110,42 @@ echo \"Insecure registries 需要设置 <公司内部docker-registry域名>\"
 echo \"Registry mirrors 建议中国用户使用 http://hub-mirror.c.163.com, 启动nexus.local以后可以设置为http://registry.docker.local:5001\"
 read -p \"检查Docker设置完成后按 ENTER 键继续\"
 
-clone_oss_repositories '${INTERNAL_GIT_SERVICE_DOMAIN}' '${user_group}'
-for repository in \${!OSS_REPOSITORIES_DICT[@]}; do
-    echo \"git checkout master of \${repository}\"
-    (cd \${repository}; if ! git rev-parse --verify master > /dev/null; then git fetch && git branch --track master origin/master; fi)
-done
-
-#(cd oss-environment/oss-docker/nexus3 && docker-compose build && docker-compose up -d)
-#eval \$(curl -H 'Cache-Control: no-cache' -s -L ${INTERNAL_GIT_SERVICE}/infra/oss-build/raw/develop/src/main/install/files.sh)
-#(cd oss-environment/oss-docker/gogs && docker-compose build && docker-compose up -d)
-#waitforit -full-connection=tcp://local-git:20080 -timeout=600
-#waitforit -full-connection=tcp://local-git:20022 -timeout=600
-sleep 10
-docker exec local-git /app/gogs/entrypoint.sh export_git_admin_key > ~/.ssh/local-git && chmod 600 ~/.ssh/local-git;
-#waitforit -full-connection=tcp://nexus.local:28081 -timeout=600
-#waitforit -full-connection=tcp://nexus.local:5000 -timeout=600
-sleep 10
-
-#(cd oss-build && mvn clean install deploy)
-#(cd oss-build && mvn site site:stage site:stage-deploy)
-#(cd oss-lib && mvn clean install deploy)
-#(cd oss-lib && mvn site site:stage site:stage-deploy)
-#(cd oss-platform && mvn clean install deploy)
-#(cd oss-platform && mvn site site:stage site:stage-deploy)
-#(cd oss-environment && mvn clean install deploy)
-#(cd oss-environment && mvn site site:stage site:stage-deploy)
-
-echo Start local-eureka
-#(cd oss-environment/oss-eureka && docker-compose up -d)
-#waitforit -full-connection=tcp://local-eureka:8761 -timeout=600
-echo Start local-cloudbus
-#(cd oss-environment/oss-cloudbus && docker-compose up -d)
-#waitforit -full-connection=tcp://local-cloudbus:5672 -timeout=600
-#waitforit -full-connection=tcp://local-cloudbus:15672 -timeout=600
-echo Start local-configserver
-#(cd oss-environment/oss-configserver && docker-compose up -d)
-#waitforit -full-connection=tcp://local-configserver:8888 -timeout=600
+#clone_oss_repositories '${GITHUB_GIT_SERVICE_DOMAIN}' '${user_group}'
+#for repository in \${!OSS_REPOSITORIES_DICT[@]}; do
+#    echo \"git checkout master of \${repository}\"
+#    (cd \${repository}; if ! git rev-parse --verify master > /dev/null; then git fetch && git branch --track master origin/master; fi)
+#done
+#
+##(cd oss-environment/oss-docker/nexus3 && docker-compose build && docker-compose up -d)
+##eval \$(curl -H 'Cache-Control: no-cache' -s -L ${GITHUB_GIT_SERVICE}/home1-oss/oss-build/raw/develop/src/main/install/files.sh)
+##(cd oss-environment/oss-docker/gogs && docker-compose build && docker-compose up -d)
+##waitforit -full-connection=tcp://local-git:20080 -timeout=600
+##waitforit -full-connection=tcp://local-git:20022 -timeout=600
+#sleep 10
+#docker exec local-git /app/gogs/entrypoint.sh export_git_admin_key > ~/.ssh/local-git && chmod 600 ~/.ssh/local-git;
+##waitforit -full-connection=tcp://nexus.local:28081 -timeout=600
+##waitforit -full-connection=tcp://nexus.local:5000 -timeout=600
+#sleep 10
+#
+##(cd oss-build && mvn clean install deploy)
+##(cd oss-build && mvn site site:stage site:stage-deploy)
+##(cd oss-lib && mvn clean install deploy)
+##(cd oss-lib && mvn site site:stage site:stage-deploy)
+##(cd oss-platform && mvn clean install deploy)
+##(cd oss-platform && mvn site site:stage site:stage-deploy)
+##(cd oss-environment && mvn clean install deploy)
+##(cd oss-environment && mvn site site:stage site:stage-deploy)
+#
+#echo Start local-eureka
+##(cd oss-environment/oss-eureka && docker-compose up -d)
+##waitforit -full-connection=tcp://local-eureka:8761 -timeout=600
+#echo Start local-cloudbus
+##(cd oss-environment/oss-cloudbus && docker-compose up -d)
+##waitforit -full-connection=tcp://local-cloudbus:5672 -timeout=600
+##waitforit -full-connection=tcp://local-cloudbus:15672 -timeout=600
+#echo Start local-configserver
+##(cd oss-environment/oss-configserver && docker-compose up -d)
+##waitforit -full-connection=tcp://local-configserver:8888 -timeout=600
 "
 
 echo -e "\n"

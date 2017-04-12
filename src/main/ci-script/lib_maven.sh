@@ -133,10 +133,10 @@ maven_publish_release() {
             export MAVEN_OPTS="${MAVEN_OPTS} -Dsite.path=${BUILD_SITE_PATH_PREFIX}-release"
         fi
         if [ "${INFRASTRUCTURE}" != "github" ]; then
-            echo yes | mvn ${MAVEN_SETTINGS} site:site site:stage site:stage-deploy
+            echo yes | mvn ${MAVEN_SETTINGS} site:site site:stage site:stage-deploy | grep -v 'Downloading:' | grep -Ev '^Generating .+\.html\.\.\.'
         else
             # -X enable debug logging for Maven to avoid build timeout (not generate output)
-            mvn ${MAVEN_SETTINGS} site site-deploy
+            mvn ${MAVEN_SETTINGS} site site-deploy | grep -v 'Downloading:' | grep -Ev '^Generating .+\.html\.\.\.'
         fi
     fi
 }

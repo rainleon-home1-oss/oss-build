@@ -970,6 +970,8 @@
                 <site>
                     <id>github-site</id>
                     <name>Deployment through GitHub's site deployment plugin</name>
+                    <!--If sub projects/module inherit the site URL from a parent POM,they will automatically append their <artifactId>
+                    to their effective deployment location. More info in http://maven.apache.org/guides/mini/guide-site.html-->
                     <url>${project.version}</url>
                 </site>
             </distributionManagement>
@@ -983,9 +985,8 @@
                             <path>${project.distributionManagement.site.url}</path>
                             <merge>true</merge>
                             <noJekyll>true</noJekyll>
-                            <repositoryOwner>home1-oss</repositoryOwner>
-                            <repositoryName>home1-oss</repositoryName>
-                            <branch>refs/heads/gh-pages</branch>
+                            <repositoryOwner>${env.BUILD_SITE_GITHUB_REPOSITORY_OWNER}</repositoryOwner>
+                            <repositoryName>${env.BUILD_SITE_GITHUB_REPOSITORY_NAME}</repositoryName>
                         </configuration>
                         <executions>
                             <execution>

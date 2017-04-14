@@ -972,7 +972,7 @@
                     <name>Deployment through GitHub's site deployment plugin</name>
                     <!--If sub projects/module inherit the site URL from a parent POM,they will automatically append their <artifactId>
                     to their effective deployment location. More info in http://maven.apache.org/guides/mini/guide-site.html-->
-                    <url>${project.version}${env.BUILD_SITE_PATH_PREFIX}</url>
+                    <url>${project.version}</url>
                 </site>
             </distributionManagement>
             <build>

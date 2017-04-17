@@ -19,9 +19,9 @@ under the License.
 -->
 <rss version="0.91">
   <channel>
-    <title>oss-common-dependencies-spring-boot-1.4.x - Checkstyle report</title>
-    <link>https://github.com/home1-oss/oss-common-dependencies/oss-common-dependencies-spring-boot-1.4.x</link>
-    <description>oss-common-dependencies-spring-boot-1.4.x - Checkstyle report</description>
+    <title>oss-build - Checkstyle report</title>
+    <link>https://github.com/home1-oss/oss-build</link>
+    <description>oss-build - Checkstyle report</description>
     <language>en-us</language>
     <copyright>&#169;2017</copyright>
     <item>
@@ -30,9 +30,9 @@ under the License.
              Warnings: 0,
              Infos: 0
       </title>
-            <link>https://github.com/home1-oss/oss-common-dependencies/oss-common-dependencies-spring-boot-1.4.x/checkstyle.html</link>
+            <link>https://github.com/home1-oss/oss-build/checkstyle.html</link>
       <description>
-        <p>Click <a href="https://github.com/home1-oss/oss-common-dependencies/oss-common-dependencies-spring-boot-1.4.x/checkstyle.html">here</a> for the full Checkstyle report.</p>
+        <p>Click <a href="https://github.com/home1-oss/oss-build/checkstyle.html">here</a> for the full Checkstyle report.</p>
 
         <table summary="Files" boder="1">
           <thead>
@@ -46,7 +46,7 @@ under the License.
           <tbody>
                           <tr>
                 <td>
-                  <a href="https://github.com/home1-oss/oss-common-dependencies/oss-common-dependencies-spring-boot-1.4.x/checkstyle.html#git.properties">git.properties</a>
+                  <a href="https://github.com/home1-oss/oss-build/checkstyle.html#git.properties">git.properties</a>
                 </td>
                 <td>
                   0

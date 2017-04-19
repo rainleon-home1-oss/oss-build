@@ -43,6 +43,11 @@ eval "$(curl -H 'Cache-Control: no-cache' -s -L ${BUILD_SCRIPT_LOC}/src/main/ci-
 echo "eval \$(curl -H 'Cache-Control: no-cache' -s -L ${BUILD_SCRIPT_LOC}/src/main/ci-script/lib_gradle.sh)"
 eval "$(curl -H 'Cache-Control: no-cache' -s -L ${BUILD_SCRIPT_LOC}/src/main/ci-script/lib_gradle.sh)"
 
+if [ -n "${DOCKERHUB_PASS}" ] && [ -n "${DOCKERHUB_USER}" ]; then
+    docker login -p="${DOCKERHUB_PASS}" -u="${DOCKERHUB_USER}" https://registry-1.docker.io/v1/
+    docker login -p="${DOCKERHUB_PASS}" -u="${DOCKERHUB_USER}" https://registry-1.docker.io/v2/
+fi
+
 analysis() {
     echo "analysis @ $(pwd)";
     if [ -f pom.xml ]; then maven_analysis; fi

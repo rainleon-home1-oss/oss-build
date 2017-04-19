@@ -82,7 +82,7 @@ done
 
 
 if [ -z "${BUILD_FILESERVER}" ]; then
-    BUILD_FILESERVER="http://local-fileserver:80"
+    BUILD_FILESERVER="http://fileserver.local:80"
 fi
 FOUND_FILES=($(find ${DOWNLOAD_CACHE} -type f | grep -Ev ".sha1$"))
 for found_file in "${FOUND_FILES[@]}"; do

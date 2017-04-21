@@ -16,7 +16,7 @@ oss-build父pom是用于管理软件工程的, 它不定义依赖版本.
 在maven的pom中设置parent为oss-build:
 
         <parent>
-            <groupId>com.yirendai.oss</groupId>
+            <groupId>com.yirendai.infra</groupId>
             <artifactId>oss-build</artifactId>
             <version>1.0.8.OSS-SNAPSHOT</version>
         </parent>

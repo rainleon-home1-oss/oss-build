@@ -19,9 +19,9 @@
 
   自动设置oss开发环境
   via curl
-  `sh -c "$(curl -fsSL https://github.com/Yirendai/oss-build/raw/master/src/main/install/install_oss_on_mac.sh)"`
+  `sh -c "$(curl -fsSL https://github.com/home1-oss/oss-build/raw/master/src/main/install/install_oss_on_mac.sh)"`
   via wget
-  `sh -c "$(wget https://github.com/Yirendai/oss-build/raw/master/src/main/install/install_oss_on_mac.sh -O -)"`
+  `sh -c "$(wget https://github.com/home1-oss/oss-build/raw/master/src/main/install/install_oss_on_mac.sh -O -)"`
   
   它会自动进行下列操作:
   

@@ -20,7 +20,7 @@ mkdir -p ${CI_CACHE}
 # see: https://gitlab.com/help/ci/variables/README.md
 # ${CI_BUILD_REF_NAME} show branch or tag since GitLab-CI 5.2
 # ${CI_PROJECT_URL} example: "https://example.com/gitlab-org/gitlab-ce"
-if [ -n "${OSS_BUILD_REF_BRANCH}" ] ; then BUILD_SCRIPT_REF="${CI_BUILD_REF_NAME}"; else BUILD_SCRIPT_REF="develop"; fi
+if [ -n "${OSS_BUILD_REF_BRANCH}" ] ; then BUILD_SCRIPT_REF="${OSS_BUILD_REF_BRANCH}"; else BUILD_SCRIPT_REF="develop"; fi
 if [ -z "${GIT_SERVICE}" ]; then
     if [ -n "${CI_PROJECT_URL}" ]; then INFRASTRUCTURE="internal"; GIT_SERVICE=$(echo "${CI_PROJECT_URL}" | sed 's,/*[^/]\+/*$,,' | sed 's,/*[^/]\+/*$,,'); else INFRASTRUCTURE="local"; GIT_SERVICE="${LOCAL_GIT_SERVICE}"; fi
 fi

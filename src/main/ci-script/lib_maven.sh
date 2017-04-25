@@ -101,18 +101,7 @@ maven_publish_snapshot() {
     else
         mvn ${MAVEN_SETTINGS} deploy
     fi
-    # 先 deploy 才能构建site
-    if [ "true" == "${BUILD_SITE}" ]; then
-        if [ ! -z "${BUILD_SITE_PATH_PREFIX}" ]; then
-            export MAVEN_OPTS="${MAVEN_OPTS} -Dsite.path=${BUILD_SITE_PATH_PREFIX}-snapshot"
-        fi
-        if [ "${INFRASTRUCTURE}" != "github" ]; then
-            echo yes | mvn ${MAVEN_SETTINGS} site:site site:stage site:stage-deploy
-        else
-            # -X enable debug logging for Maven to avoid build timeout (not generate output)
-            mvn ${MAVEN_SETTINGS} site site-deploy
-        fi
-    fi
+
 }
 
 maven_publish_release() {
@@ -129,10 +118,18 @@ maven_publish_release() {
     else
         mvn ${MAVEN_SETTINGS} deploy
     fi
+}
+
+maven_publish_maven_site(){
+    export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.clean.skip=true"
+    export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.test.skip=true"
+    export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.integration-test.skip=true"
+    export MAVEN_OPTS="${MAVEN_OPTS} -Ddependency-check=${BUILD_DEPENDENCY_CHECK}"
+
     # 先 deploy 才能构建site
     if [ "true" == "${BUILD_SITE}" ]; then
         if [ ! -z "${BUILD_SITE_PATH_PREFIX}" ]; then
-            export MAVEN_OPTS="${MAVEN_OPTS} -Dsite.path=${BUILD_SITE_PATH_PREFIX}-release"
+            export MAVEN_OPTS="${MAVEN_OPTS} -Dsite.path=${BUILD_SITE_PATH_PREFIX}-${BUILD_PUBLISH_CHANNEL}"
         fi
         if [ "${INFRASTRUCTURE}" != "github" ]; then
             echo yes | mvn ${MAVEN_SETTINGS} site:site site:stage site:stage-deploy | grep -v 'Downloading:' | grep -Ev '^Generating .+\.html\.\.\.'

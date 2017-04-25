@@ -20,7 +20,7 @@ mkdir -p ${CI_CACHE}
 # see: https://gitlab.com/help/ci/variables/README.md
 # ${CI_BUILD_REF_NAME} show branch or tag since GitLab-CI 5.2
 # ${CI_PROJECT_URL} example: "https://example.com/gitlab-org/gitlab-ce"
-if [ -n "${CI_BUILD_REF_NAME}" ] && ([ "${CI_BUILD_REF_NAME}" == "master" ] || [ "${CI_BUILD_REF_NAME}" == "develop" ]); then BUILD_SCRIPT_REF="${CI_BUILD_REF_NAME}"; else BUILD_SCRIPT_REF="develop"; fi
+if [ -n "${OSS_BUILD_REF_BRANCH}" ] ; then BUILD_SCRIPT_REF="${CI_BUILD_REF_NAME}"; else BUILD_SCRIPT_REF="develop"; fi
 if [ -z "${GIT_SERVICE}" ]; then
     if [ -n "${CI_PROJECT_URL}" ]; then INFRASTRUCTURE="internal"; GIT_SERVICE=$(echo "${CI_PROJECT_URL}" | sed 's,/*[^/]\+/*$,,' | sed 's,/*[^/]\+/*$,,'); else INFRASTRUCTURE="local"; GIT_SERVICE="${LOCAL_GIT_SERVICE}"; fi
 fi
@@ -61,16 +61,21 @@ test_and_build() {
 
 publish_snapshot() {
     echo "publish_snapshot @ $(pwd)";
-    export BUILD_PUBLISH_CHANNEL="snapshot"
+    if [ -z "${BUILD_PUBLISH_CHANNEL}" ] ; then BUILD_PUBLISH_CHANNEL="snapshot"; fi
     if [ -f pom.xml ]; then maven_publish_snapshot; fi
     if [ -f build.gradle ]; then gradle_publish_snapshot; fi
 }
 
 publish_release() {
     echo "publish_release @ $(pwd)";
-    export BUILD_PUBLISH_CHANNEL="release"
+    if [ -z "${BUILD_PUBLISH_CHANNEL}" ] ; then BUILD_PUBLISH_CHANNEL="release"; fi
     if [ -f pom.xml ]; then maven_publish_release; fi
     if [ -f build.gradle ]; then gradle_publish_release; fi
+}
+
+publish_maven_site(){
+    echo "publish_maven_site @ $(pwd)";
+    if [ -f pom.xml ]; then maven_publish_maven_site; fi
 }
 
 publish_release_tag() {

@@ -955,7 +955,7 @@
             <distributionManagement>
                 <repository>
                     <id>github-nexus-releases</id>
-                    <url>${github-nexus.repositories}/releases</url>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
                 </repository>
                 <snapshotRepository>
                     <id>github-nexus-snapshots</id>

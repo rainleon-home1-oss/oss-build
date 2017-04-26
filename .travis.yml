@@ -24,7 +24,7 @@ env:
   global:
 # if refer some release version please modify this var to oss-build version that has bean released,ex:1.0.8
 #  - OSS_BUILD_REF_BRANCH=v1.0.8
-  - OSS_BUILD_REF_BRANCH=develop
+  - OSS_BUILD_REF_BRANCH=release/1.0.8.OSS
   - CI_BUILD_REF_NAME=$TRAVIS_BRANCH
   - GIT_SERVICE=https://github.com
   - INFRASTRUCTURE=github

@@ -3,6 +3,7 @@
 ### OSS CI CONTEXT VARIABLES BEGIN
 if ([ -z "${CI_BUILD_REF_NAME}" ] && [ -n "${TRAVIS_BRANCH}" ]); then CI_BUILD_REF_NAME="${TRAVIS_BRANCH}"; fi
 if [ -n "${OSS_BUILD_REF_BRANCH}" ]; then BUILD_SCRIPT_REF="${OSS_BUILD_REF_BRANCH}"; else BUILD_SCRIPT_REF="develop"; fi
+if [ -z "${OSS_BUILD_CONFIG_REF_BRANCH}" ]; then export OSS_BUILD_CONFIG_REF_BRANCH="develop"; fi
 if [ -z "${GIT_SERVICE}" ]; then
     if [ -n "${CI_PROJECT_URL}" ]; then INFRASTRUCTURE="internal"; GIT_SERVICE=$(echo "${CI_PROJECT_URL}" | sed 's,/*[^/]\+/*$,,' | sed 's,/*[^/]\+/*$,,'); else INFRASTRUCTURE="local"; GIT_SERVICE="${LOCAL_GIT_SERVICE}"; fi
 fi

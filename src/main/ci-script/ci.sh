@@ -21,11 +21,12 @@ mkdir -p ${CI_CACHE}
 # ${CI_BUILD_REF_NAME} show branch or tag since GitLab-CI 5.2
 # ${CI_PROJECT_URL} example: "https://example.com/gitlab-org/gitlab-ce"
 if [ -n "${OSS_BUILD_REF_BRANCH}" ] ; then BUILD_SCRIPT_REF="${OSS_BUILD_REF_BRANCH}"; else BUILD_SCRIPT_REF="develop"; fi
+if [ -z "${OSS_BUILD_CONFIG_REF_BRANCH}" ] ; then OSS_BUILD_CONFIG_REF_BRANCH="develop"; fi
 if [ -z "${GIT_SERVICE}" ]; then
     if [ -n "${CI_PROJECT_URL}" ]; then INFRASTRUCTURE="internal"; GIT_SERVICE=$(echo "${CI_PROJECT_URL}" | sed 's,/*[^/]\+/*$,,' | sed 's,/*[^/]\+/*$,,'); else INFRASTRUCTURE="local"; GIT_SERVICE="${LOCAL_GIT_SERVICE}"; fi
 fi
 BUILD_SCRIPT_LOC="${GIT_SERVICE}/${GIT_REPO_OWNER}/oss-build/raw/${BUILD_SCRIPT_REF}";
-BUILD_CONFIG_LOC="${GIT_SERVICE}/${GIT_REPO_OWNER}/oss-${INFRASTRUCTURE}/raw/${BUILD_SCRIPT_REF}"
+BUILD_CONFIG_LOC="${GIT_SERVICE}/${GIT_REPO_OWNER}/oss-${INFRASTRUCTURE}/raw/${OSS_BUILD_CONFIG_REF_BRANCH}"
 echo "INFRASTRUCTURE: ${INFRASTRUCTURE}, BUILD_SCRIPT_LOC: ${BUILD_SCRIPT_LOC}, BUILD_CONFIG_LOC: ${BUILD_CONFIG_LOC}"
 
 if [ "internal" == "${INFRASTRUCTURE}" ]; then

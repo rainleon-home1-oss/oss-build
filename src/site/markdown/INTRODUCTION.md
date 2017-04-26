@@ -18,7 +18,7 @@ oss-build父pom是用于管理软件工程的, 它不定义依赖版本.
         <parent>
             <groupId>cn.home1</groupId>
             <artifactId>oss-build</artifactId>
-            <version>1.0.8.OSS-SNAPSHOT</version>
+            <version>1.0.8.OSS</version>
         </parent>
 
 这不会引入任何依赖, oss-build只管理软件工程, 不会干扰项目依赖管理.

@@ -114,7 +114,7 @@ maven_publish_release() {
         export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.source.filepath=${DEPLOY_LOCAL_REPO_IF_NEED}"
         export MAVEN_OPTS="${MAVEN_OPTS} -DaltDeploymentRepository=repo::default::file://${DEPLOY_LOCAL_REPO_IF_NEED}"
         export MAVEN_OPTS="${MAVEN_OPTS} -Dbuild.publish.channel=${BUILD_PUBLISH_CHANNEL}"
-        mvn ${MAVEN_SETTINGS} org.codehaus.mojo:wagon-maven-plugin:merge-maven-repos@deploy-merge-maven-repos docker:removeImage docker:build docker:push
+        mvn ${MAVEN_SETTINGS} org.codehaus.mojo:wagon-maven-plugin:merge-maven-repos@deploy-merge-maven-repos docker:build docker:push
     else
         mvn ${MAVEN_SETTINGS} deploy
     fi

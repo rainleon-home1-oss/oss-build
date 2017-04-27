@@ -1,6 +1,7 @@
 addons:
   apt:
     packages:
+    - gnupg
     - gnupg2
     - graphviz
     - openssl

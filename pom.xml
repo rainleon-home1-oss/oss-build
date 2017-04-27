@@ -3,40 +3,36 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.yirendai.infra</groupId>
+    <groupId>cn.home1</groupId>
     <artifactId>oss-build</artifactId>
-    <version>1.0.8.OSS-SNAPSHOT</version>
+    <version>1.0.8.OSS</version>
     <packaging>pom</packaging>
     <url>https://github.com/home1-oss/oss-build</url>
 
     <developers>
         <developer>
             <name>Haolun Zhang</name>
-            <email>haolunzhang@yirendai.com</email>
-        </developer>
-        <developer>
-            <name>Pengcheng Zhu</name>
-            <email>pengchengzhu@yirendai.com</email>
-        </developer>
-        <developer>
-            <name>Shuangjie Feng</name>
-            <email>shuangjiefeng@yirendai.com</email>
-        </developer>
-        <developer>
-            <name>Yan Zhang</name>
-            <email>yanzhang153@yirendai.com</email>
-        </developer>
-        <developer>
-            <name>Yuliang Jin</name>
-            <email>yuliangjin@yirendai.com</email>
-        </developer>
-        <developer>
-            <name>Zecheng Zhao</name>
-            <email>zhechengzhao@yirendai.com</email>
+            <url>https://github.com/chshawkn</url>
         </developer>
         <developer>
             <name>Jian Liang</name>
-            <email>jianliang9@yirendai.com</email>
+            <email>https://github.com/rainleon</email>
+        </developer>
+        <developer>
+            <name>Shuangjie Feng</name>
+            <url>https://github.com/youhouhouhou</url>
+        </developer>
+        <developer>
+            <name>Yan Zhang</name>
+            <url>https://github.com/iforgetyou</url>
+        </developer>
+        <developer>
+            <name>Yuliang Jin</name>
+            <email>zhixiangjin@126.com</email>
+        </developer>
+        <developer>
+            <name>Zecheng Zhao</name>
+            <url>https://github.com/sealake</url>
         </developer>
     </developers>
 
@@ -435,7 +431,7 @@
                         <releaseBranchPrefix>release/</releaseBranchPrefix>
                         <hotfixBranchPrefix>hotfix/</hotfixBranchPrefix>
                         <supportBranchPrefix>support/</supportBranchPrefix>
-                        <versionTagPrefix></versionTagPrefix>
+                        <versionTagPrefix>v</versionTagPrefix>
                     </gitFlowConfig>
 
                     <commitMessages>
@@ -942,8 +938,8 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <wagon.merge-maven-repos.target>${github-nexus.repositories}/${build.publish.channel}s</wagon.merge-maven-repos.target>
-                <wagon.merge-maven-repos.targetId>github-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
+                <!--<wagon.merge-maven-repos.target>${github-nexus.repositories}/${build.publish.channel}s</wagon.merge-maven-repos.target>-->
+                <!--<wagon.merge-maven-repos.targetId>github-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>-->
                 <docker-maven.useConfigFile>true</docker-maven.useConfigFile>
                 <!-- id as in your settings.xml -->
                 <github.global.server>github</github.global.server>
@@ -959,11 +955,11 @@
             <distributionManagement>
                 <repository>
                     <id>github-nexus-releases</id>
-                    <url>${github-nexus.repositories}/releases</url>
+                    <url>${env.NEXUS_RELEASE_DISTRIBUTE_URL}</url>
                 </repository>
                 <snapshotRepository>
                     <id>github-nexus-snapshots</id>
-                    <url>${github-nexus.repositories}/snapshots</url>
+                    <url>${env.NEXUS_SNAPSHOT_DISTRIBUTE_URL}</url>
                 </snapshotRepository>
                 <!-- Do mvn site site:stage -DstagingDirectory=/tmp/path first,
                 then manually add/push to the gh-pages branch on GitHub -->

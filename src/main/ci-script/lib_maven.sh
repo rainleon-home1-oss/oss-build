@@ -96,22 +96,14 @@ maven_publish_snapshot() {
         export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.source.filepath=${DEPLOY_LOCAL_REPO_IF_NEED} -Dactive_publish_segregation=true"
         export MAVEN_OPTS="${MAVEN_OPTS} -DaltDeploymentRepository=repo::default::file://${DEPLOY_LOCAL_REPO_IF_NEED}"
         export MAVEN_OPTS="${MAVEN_OPTS} -Dbuild.publish.channel=${BUILD_PUBLISH_CHANNEL}"
+        if [ "github" == "${INFRASTRUCTURE}" ]; then
+            export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.target=${NEXUS_SNAPSHOT_DISTRIBUTE_URL}"
+            export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.targetId=github-nexus-snapshots"
+        fi
         echo "maven_publish_snapshot: MAVEN_OPTS: ${MAVEN_OPTS}"
         mvn ${MAVEN_SETTINGS} org.codehaus.mojo:wagon-maven-plugin:merge-maven-repos@deploy-merge-maven-repos docker:build docker:push
     else
         mvn ${MAVEN_SETTINGS} deploy
-    fi
-    # 先 deploy 才能构建site
-    if [ "true" == "${BUILD_SITE}" ]; then
-        if [ ! -z "${BUILD_SITE_PATH_PREFIX}" ]; then
-            export MAVEN_OPTS="${MAVEN_OPTS} -Dsite.path=${BUILD_SITE_PATH_PREFIX}-snapshot"
-        fi
-        if [ "${INFRASTRUCTURE}" != "github" ]; then
-            echo yes | mvn ${MAVEN_SETTINGS} site:site site:stage site:stage-deploy
-        else
-            # -X enable debug logging for Maven to avoid build timeout (not generate output)
-            mvn ${MAVEN_SETTINGS} site site-deploy
-        fi
     fi
 }
 
@@ -122,17 +114,30 @@ maven_publish_release() {
     export MAVEN_OPTS="${MAVEN_OPTS} -Ddependency-check=${BUILD_DEPENDENCY_CHECK}"
 
     if [ "true" == "${BUILD_PUBLISH_DEPLOY_SEGREGATION}" ]; then
-        export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.source.filepath=${DEPLOY_LOCAL_REPO_IF_NEED}"
+        export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.source.filepath=${DEPLOY_LOCAL_REPO_IF_NEED} -Dactive_publish_segregation=true"
         export MAVEN_OPTS="${MAVEN_OPTS} -DaltDeploymentRepository=repo::default::file://${DEPLOY_LOCAL_REPO_IF_NEED}"
         export MAVEN_OPTS="${MAVEN_OPTS} -Dbuild.publish.channel=${BUILD_PUBLISH_CHANNEL}"
-        mvn ${MAVEN_SETTINGS} org.codehaus.mojo:wagon-maven-plugin:merge-maven-repos@deploy-merge-maven-repos docker:removeImage docker:build docker:push
+        if [ "github" == "${INFRASTRUCTURE}" ]; then
+            export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.target=${NEXUS_RELEASE_DISTRIBUTE_URL}"
+            export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.targetId=github-nexus-releases"
+        fi
+        echo "maven_publish_snapshot: MAVEN_OPTS: ${MAVEN_OPTS}"
+        mvn ${MAVEN_SETTINGS} org.codehaus.mojo:wagon-maven-plugin:merge-maven-repos@deploy-merge-maven-repos docker:build docker:push
     else
         mvn ${MAVEN_SETTINGS} deploy
     fi
+}
+
+maven_publish_maven_site(){
+    export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.clean.skip=true"
+    export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.test.skip=true"
+    export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.integration-test.skip=true"
+    export MAVEN_OPTS="${MAVEN_OPTS} -Ddependency-check=${BUILD_DEPENDENCY_CHECK}"
+
     # 先 deploy 才能构建site
     if [ "true" == "${BUILD_SITE}" ]; then
         if [ ! -z "${BUILD_SITE_PATH_PREFIX}" ]; then
-            export MAVEN_OPTS="${MAVEN_OPTS} -Dsite.path=${BUILD_SITE_PATH_PREFIX}-release"
+            export MAVEN_OPTS="${MAVEN_OPTS} -Dsite.path=${BUILD_SITE_PATH_PREFIX}-${BUILD_PUBLISH_CHANNEL}"
         fi
         if [ "${INFRASTRUCTURE}" != "github" ]; then
             echo yes | mvn ${MAVEN_SETTINGS} site:site site:stage site:stage-deploy | grep -v 'Downloading:' | grep -Ev '^Generating .+\.html\.\.\.'

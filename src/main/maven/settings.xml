@@ -155,7 +155,8 @@
                 <repository>
                     <id>github-nexus-releases</id>
                     <name>central releases</name>
-                    <url>https://oss.sonatype.org/content/repositories/releases/</url>
+                    <!--url>https://oss.sonatype.org/content/repositories/releases/</url-->
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>false</enabled></snapshots>
                 </repository>
@@ -171,7 +172,8 @@
                 <pluginRepository>
                     <id>github-nexus-releases</id>
                     <name>central releases</name>
-                    <url>https://oss.sonatype.org/content/repositories/releases/</url>
+                    <!--url>https://oss.sonatype.org/content/repositories/releases/</url-->
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>false</enabled></snapshots>
                 </pluginRepository>

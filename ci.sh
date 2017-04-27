@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [ -f codesigning.asc.enc ] && [ "${TRAVIS_PULL_REQUEST}" == 'false' ]; then
+    openssl aes-256-cbc -K $encrypted_f1fe46eea14b_key -iv $encrypted_f1fe46eea14b_iv -in codesigning.asc.enc -out codesigning.asc -d
+    gpg --fast-import codesigning.asc
+fi
+
 ### OSS CI CONTEXT VARIABLES BEGIN
 if ([ -z "${CI_BUILD_REF_NAME}" ] && [ -n "${TRAVIS_BRANCH}" ]); then CI_BUILD_REF_NAME="${TRAVIS_BRANCH}"; fi
 if [ -n "${OSS_BUILD_REF_BRANCH}" ]; then BUILD_SCRIPT_REF="${OSS_BUILD_REF_BRANCH}"; else BUILD_SCRIPT_REF="develop"; fi
@@ -11,7 +16,7 @@ if [ -z "${GIT_REPO_OWNER}" ]; then
     if [ -n "${TRAVIS_REPO_SLUG}" ]; then
         GIT_REPO_OWNER=$(echo ${TRAVIS_REPO_SLUG} | awk -F/ '{print $1}');
     else
-        if [ -z "${INTERNAL_GIT_SERVICE_USER}" ]; then GIT_REPO_OWNER="infra"; else GIT_REPO_OWNER="${INTERNAL_GIT_SERVICE_USER}"; fi
+        if [ -z "${INTERNAL_GIT_SERVICE_USER}" ]; then GIT_REPO_OWNER="home1-oss"; else GIT_REPO_OWNER="${INTERNAL_GIT_SERVICE_USER}"; fi
     fi
 fi
 ### OSS CI CONTEXT VARIABLES END

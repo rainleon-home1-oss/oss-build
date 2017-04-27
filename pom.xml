@@ -3,11 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>cn.home1</groupId>
     <artifactId>oss-build</artifactId>
-    <version>1.0.8.OSS</version>
+    <description>Module to centralize common resources and configuration for open source stack builds.</description>
+    <groupId>cn.home1</groupId>
+    <name>oss-build</name>
     <packaging>pom</packaging>
     <url>https://github.com/home1-oss/oss-build</url>
+    <version>1.0.9.OSS</version>
 
     <developers>
         <developer>
@@ -36,15 +38,23 @@
         </developer>
     </developers>
 
+    <ciManagement>
+        <system>Travis CI</system>
+        <url>https://travis-ci.org/home1-oss/oss-build</url>
+    </ciManagement>
+
     <issueManagement>
         <system>GitHub Issues</system>
         <url>https://github.com/home1-oss/oss-build/issues</url>
     </issueManagement>
 
-    <ciManagement>
-        <system>Travis CI</system>
-        <url>https://travis-ci.org/home1-oss/oss-build</url>
-    </ciManagement>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <scm>
         <url>https://github.com/home1-oss/oss-build</url>
@@ -938,8 +948,6 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <!--<wagon.merge-maven-repos.target>${github-nexus.repositories}/${build.publish.channel}s</wagon.merge-maven-repos.target>-->
-                <!--<wagon.merge-maven-repos.targetId>github-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>-->
                 <docker-maven.useConfigFile>true</docker-maven.useConfigFile>
                 <!-- id as in your settings.xml -->
                 <github.global.server>github</github.global.server>
@@ -993,6 +1001,31 @@
                                 <phase>site-deploy</phase>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.8</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>github-nexus-snapshots</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

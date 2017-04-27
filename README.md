@@ -3,7 +3,7 @@
 -----
 如果你正在通过git服务查看此文档，请移步项目网站或gitbook查看文档，因为git服务生成的文档链接有问题。
 + [gitbook](http://mvn-site.internal/oss-build-develop/gitbook)
-+ [maven网站](http://home1-oss.github.io/oss-build/1.0.8.OSS)
++ [maven网站](http://home1-oss.github.io/oss-build/1.0.9.OSS)
 -----
 
 # oss是什么
@@ -13,7 +13,7 @@
 pom进行静态代码检查，或只是使用它包含的其他软件工程工具，请参考[oss-build父pom](./INTRODUCTION.html)。<br/>
 <br/>
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<big>**o**</big>ss-build即宜人贷开源技术栈是由
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<big>**o**</big>ss即开源技术栈是由
 很多功能各异的基于spring-boot的项目组成的，它们是基于spring的微服务架构的基石。这些项目有的负责控制软件工程质量，
 有的提供依赖管理帮助你避免依赖地狱，有的提供库来帮助你加速开发，减少完成工作所需的代码，有的提供微服务架构所需的基础
 服务等等。<br/>

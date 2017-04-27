@@ -938,8 +938,8 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <wagon.merge-maven-repos.target>${github-nexus.repositories}/${build.publish.channel}s</wagon.merge-maven-repos.target>
-                <wagon.merge-maven-repos.targetId>github-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
+                <!--<wagon.merge-maven-repos.target>${github-nexus.repositories}/${build.publish.channel}s</wagon.merge-maven-repos.target>-->
+                <!--<wagon.merge-maven-repos.targetId>github-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>-->
                 <docker-maven.useConfigFile>true</docker-maven.useConfigFile>
                 <!-- id as in your settings.xml -->
                 <github.global.server>github</github.global.server>
@@ -955,11 +955,11 @@
             <distributionManagement>
                 <repository>
                     <id>github-nexus-releases</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+                    <url>${env.NEXUS_RELEASE_DISTRIBUTE_URL}</url>
                 </repository>
                 <snapshotRepository>
                     <id>github-nexus-snapshots</id>
-                    <url>${github-nexus.repositories}/snapshots</url>
+                    <url>${env.NEXUS_SNAPSHOT_DISTRIBUTE_URL}</url>
                 </snapshotRepository>
                 <!-- Do mvn site site:stage -DstagingDirectory=/tmp/path first,
                 then manually add/push to the gh-pages branch on GitHub -->

@@ -5,7 +5,7 @@
 
     <groupId>cn.home1</groupId>
     <artifactId>oss-build</artifactId>
-    <version>1.0.8.OSS</version>
+    <version>1.0.8</version>
     <packaging>pom</packaging>
     <url>https://github.com/home1-oss/oss-build</url>
 

@@ -105,7 +105,6 @@ maven_publish_snapshot() {
     else
         mvn ${MAVEN_SETTINGS} deploy
     fi
-
 }
 
 maven_publish_release() {

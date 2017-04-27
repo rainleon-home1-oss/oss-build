@@ -3,11 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>cn.home1</groupId>
     <artifactId>oss-build</artifactId>
-    <version>1.0.9.OSS-SNAPSHOT</version>
+    <description>Module to centralize common resources and configuration for open source stack builds.</description>
+    <groupId>cn.home1</groupId>
+    <name>oss-build</name>
     <packaging>pom</packaging>
     <url>https://github.com/home1-oss/oss-build</url>
+    <version>1.0.9.OSS</version>
 
     <developers>
         <developer>

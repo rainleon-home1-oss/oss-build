@@ -96,6 +96,10 @@ maven_publish_snapshot() {
         export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.source.filepath=${DEPLOY_LOCAL_REPO_IF_NEED} -Dactive_publish_segregation=true"
         export MAVEN_OPTS="${MAVEN_OPTS} -DaltDeploymentRepository=repo::default::file://${DEPLOY_LOCAL_REPO_IF_NEED}"
         export MAVEN_OPTS="${MAVEN_OPTS} -Dbuild.publish.channel=${BUILD_PUBLISH_CHANNEL}"
+        if [ "github" == ${BUILD_PUBLISH_CHANNEL} ]; then
+            export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.target=${NEXUS_SNAPSHOT_DISTRIBUTE_URL}"
+            export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.targetId=github-nexus-snapshots"
+        fi
         echo "maven_publish_snapshot: MAVEN_OPTS: ${MAVEN_OPTS}"
         mvn ${MAVEN_SETTINGS} org.codehaus.mojo:wagon-maven-plugin:merge-maven-repos@deploy-merge-maven-repos docker:build docker:push
     else
@@ -111,10 +115,15 @@ maven_publish_release() {
     export MAVEN_OPTS="${MAVEN_OPTS} -Ddependency-check=${BUILD_DEPENDENCY_CHECK}"
 
     if [ "true" == "${BUILD_PUBLISH_DEPLOY_SEGREGATION}" ]; then
-        export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.source.filepath=${DEPLOY_LOCAL_REPO_IF_NEED}"
+        export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.source.filepath=${DEPLOY_LOCAL_REPO_IF_NEED} -Dactive_publish_segregation=true"
         export MAVEN_OPTS="${MAVEN_OPTS} -DaltDeploymentRepository=repo::default::file://${DEPLOY_LOCAL_REPO_IF_NEED}"
         export MAVEN_OPTS="${MAVEN_OPTS} -Dbuild.publish.channel=${BUILD_PUBLISH_CHANNEL}"
-        mvn ${MAVEN_SETTINGS} org.codehaus.mojo:wagon-maven-plugin:merge-maven-repos@deploy-merge-maven-repos docker:removeImage docker:build docker:push
+        if [ "github" == ${BUILD_PUBLISH_CHANNEL} ]; then
+            export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.target=${NEXUS_RELEASE_DISTRIBUTE_URL}"
+            export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.targetId=github-nexus-releases"
+        fi
+        echo "maven_publish_snapshot: MAVEN_OPTS: ${MAVEN_OPTS}"
+        mvn ${MAVEN_SETTINGS} org.codehaus.mojo:wagon-maven-plugin:merge-maven-repos@deploy-merge-maven-repos docker:build docker:push
     else
         mvn ${MAVEN_SETTINGS} deploy
     fi

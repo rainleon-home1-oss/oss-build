@@ -96,7 +96,7 @@ maven_publish_snapshot() {
         export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.source.filepath=${DEPLOY_LOCAL_REPO_IF_NEED} -Dactive_publish_segregation=true"
         export MAVEN_OPTS="${MAVEN_OPTS} -DaltDeploymentRepository=repo::default::file://${DEPLOY_LOCAL_REPO_IF_NEED}"
         export MAVEN_OPTS="${MAVEN_OPTS} -Dbuild.publish.channel=${BUILD_PUBLISH_CHANNEL}"
-        if [ "github" == ${INFRASTRUCTURE} ]; then
+        if [ "github" == "${INFRASTRUCTURE}" ]; then
             export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.target=${NEXUS_SNAPSHOT_DISTRIBUTE_URL}"
             export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.targetId=github-nexus-snapshots"
         fi
@@ -105,7 +105,6 @@ maven_publish_snapshot() {
     else
         mvn ${MAVEN_SETTINGS} deploy
     fi
-
 }
 
 maven_publish_release() {
@@ -118,7 +117,7 @@ maven_publish_release() {
         export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.source.filepath=${DEPLOY_LOCAL_REPO_IF_NEED} -Dactive_publish_segregation=true"
         export MAVEN_OPTS="${MAVEN_OPTS} -DaltDeploymentRepository=repo::default::file://${DEPLOY_LOCAL_REPO_IF_NEED}"
         export MAVEN_OPTS="${MAVEN_OPTS} -Dbuild.publish.channel=${BUILD_PUBLISH_CHANNEL}"
-        if [ "github" == ${INFRASTRUCTURE} ]; then
+        if [ "github" == "${INFRASTRUCTURE}" ]; then
             export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.target=${NEXUS_RELEASE_DISTRIBUTE_URL}"
             export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.targetId=github-nexus-releases"
         fi

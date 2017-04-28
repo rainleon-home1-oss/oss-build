@@ -147,10 +147,11 @@ allprojects {
       ext."signing.keyId" = ext.gpgKeyid
       ext."signing.password" = ext.gpgPassphrase
       ext."signing.secretKeyRingFile" = "$rootDir/secring.gpg"
-      ext.signingRequired = isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives")
       apply plugin: 'signing'
       signing {
-        required { ext.signingRequired }
+        def signingRequired = isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives")
+        println "signingRequired: " + signingRequired
+        required { signingRequired }
         sign configurations.archives
       }
     }
@@ -172,7 +173,6 @@ allprojects {
     }
     println "gpgEnabled: " + ext.gpgEnabled
     println "isReleaseVersion: " + ext.isReleaseVersion
-    println "signingRequired: " + ext.signingRequired
     if ( gradle.ext.springBootApi && gradle.ext.springBootVersion ) {
       ext.springBootApi = gradle.ext.springBootApi
       ext.springBootVersion = gradle.ext.springBootVersion

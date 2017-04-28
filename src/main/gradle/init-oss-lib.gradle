@@ -1,7 +1,7 @@
 // see: https://docs.gradle.org/current/userguide/init_scripts.html
 // see: http://blog.csdn.net/sbsujjbcy/article/details/52079413
 
-void setRepositories(ext) {
+void setRepositories(project, ext) {
   def envMavenOpts = System.getenv("MAVEN_OPTS")
   if (envMavenOpts) {
     def optionMirror = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.mirror=([^\\s]+)");
@@ -92,7 +92,7 @@ allprojects {
       ext.infrastructure = 'local'
     }
 
-    setRepositories(ext)
+    setRepositories(project, ext)
 
     if (project.hasProperty('testFailureIgnore')) {
       ext.testFailureIgnore = project.getProperty('testFailureIgnore')

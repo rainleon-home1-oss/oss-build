@@ -218,7 +218,8 @@ allprojects {
       }
     }
 
-    if (ext.hasProperty('repositorySnapshots') && ext.hasProperty('repositoryReleases')) {
+    if (ext.nexusRepositories?.trim() && ext.repositorySnapshots?.trim()) {
+      println "uploadArchives: true"
       uploadArchives {
         repositories {
           mavenDeployer {
@@ -241,6 +242,8 @@ allprojects {
           }
         }
       }
+    } else {
+      println "uploadArchives: false"
     }
 
     sourceSets {

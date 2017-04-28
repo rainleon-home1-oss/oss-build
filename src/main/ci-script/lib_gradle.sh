@@ -36,19 +36,19 @@ gradle_test_and_build() {
 }
 
 gradle_publish_snapshot() {
-#    if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ]; then
-#        gradle ${GRADLE_PROPERTIES} signArchives uploadArchives -x test
-#    else
+    if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ]; then
+        gradle ${GRADLE_PROPERTIES} signArchives uploadArchives -x test
+    else
         gradle ${GRADLE_PROPERTIES} uploadArchives -x test
-#    fi
+    fi
 }
 
 gradle_publish_release() {
-#    if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ]; then
-#        gradle ${GRADLE_PROPERTIES} signArchives uploadArchives -x test
-#    else
+    if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ]; then
+        gradle ${GRADLE_PROPERTIES} signArchives uploadArchives -x test
+    else
         gradle ${GRADLE_PROPERTIES} uploadArchives -x test
-#    fi
+    fi
 }
 
 gradle_publish_maven_site(){

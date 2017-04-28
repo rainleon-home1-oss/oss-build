@@ -148,6 +148,10 @@ allprojects {
       ext."signing.password" = ext.gpgPassphrase
       ext."signing.secretKeyRingFile" = "$rootDir/secring.gpg"
       apply plugin: 'signing'
+      signing {
+        required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
+        sign configurations.archives
+      }
     }
 
     println ""

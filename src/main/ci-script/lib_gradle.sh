@@ -42,3 +42,7 @@ gradle_publish_snapshot() {
 gradle_publish_release() {
     gradle ${GRADLE_PROPERTIES} uploadArchives -x test
 }
+
+gradle_publish_maven_site(){
+    echo "gradle can't publish_maven_site"
+}

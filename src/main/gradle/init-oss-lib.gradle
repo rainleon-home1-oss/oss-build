@@ -255,7 +255,7 @@ allprojects {
 
     install {
       repositories.mavenInstaller {
-        pom = pom << pomConfig
+        pom.withXml(pomConfig)
         pom.name = "${project.name}"
         if ( "${springBootVersion}" ) {
           pom.artifactId = "${project.name}-spring-boot-${springBootVersion}"
@@ -281,7 +281,7 @@ allprojects {
             snapshotRepository(url: "${repositorySnapshots}") {
               authentication(userName: "${repositorySnapshotsUser}", password: "${repositorySnapshotsPass}")
             }
-            pom = pom << pomConfig
+            pom.withXml(pomConfig)
             pom.artifactId = "${project.name}"
             if ( "${springBootVersion}" ) {
               pom.artifactId = "${project.name}-spring-boot-${springBootVersion}"

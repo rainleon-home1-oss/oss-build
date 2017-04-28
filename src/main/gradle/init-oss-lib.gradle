@@ -223,19 +223,19 @@ allprojects {
     }
 
     if (nexusRepositories?.trim() && repositorySnapshots?.trim()) {
-      println "uploadArchives: true"
+      println "uploadArchives: true, gpgEnabled: ${gpgEnabled}"
       uploadArchives {
         repositories {
           mavenDeployer {
-            if (ext.gpgEnabled) {
+            if (gpgEnabled) {
               beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
             }
 
             // For *-SNAPSHOT versions the snapshotRepository is used. Otherwise the releases repo is used.
-            repository(url: "${ext.repositoryReleases}") {
+            repository(url: "${repositoryReleases}") {
               authentication(userName: "${repositoryReleasesUser}", password: "${repositoryReleasesPass}")
             }
-            snapshotRepository(url: "${ext.repositorySnapshots}") {
+            snapshotRepository(url: "${repositorySnapshots}") {
               authentication(userName: "${repositorySnapshotsUser}", password: "${repositorySnapshotsPass}")
             }
             pom.version = "${project.version}"
@@ -247,7 +247,7 @@ allprojects {
         }
       }
     } else {
-      println "uploadArchives: false"
+      println "uploadArchives: false, gpgEnabled: ${gpgEnabled}"
     }
 
     sourceSets {

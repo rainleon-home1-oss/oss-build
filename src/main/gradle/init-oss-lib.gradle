@@ -20,7 +20,7 @@ allprojects {
   //println "init.gradle allprojects ${project.name}"
 
   if (rootProject.name == project.name) {
-    def dotGit = new File(".git");
+    def dotGit = new File(".git")
     if (dotGit.exists() && dotGit.isDirectory()) {
       //ext.git = org.ajoberstar.grgit.Grgit.open(file('.')) // Open the Git repository in the current directory.
       ext.git = org.ajoberstar.grgit.Grgit.open(dir: '.')
@@ -98,6 +98,21 @@ allprojects {
       ext.testFailureIgnore = "false"
     }
 
+    def secringGpg = new File("$rootDir/secring.gpg")
+    ext.gpgKeyid = System.getenv("GPG_KEYID")
+    ext.gpgPassphrase = System.getenv("GPG_PASSPHRASE")
+    if (secringGpg.exists() && secringGpg.isFile() && gpgKeyid && gpgPassphrase) {
+      ext.gpgEnabled = true
+    } else {
+      ext.gpgEnabled = false
+    }
+    if (ext.gpgEnabled) {
+      ext."signing.keyId" = ext.gpgKeyid
+      ext."signing.password" = ext.gpgPassphrase
+      ext."signing.secretKeyRingFile" = "$rootDir/secring.gpg"
+      apply plugin: 'signing'
+    }
+
     println ""
     println "--------------------------------------------------------------------------------"
     println "branch: " + ext.branch
@@ -113,6 +128,7 @@ allprojects {
       println "${ext.infrastructure}-nexus-releases username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/username/text()")
       println "${ext.infrastructure}-nexus-snapshots username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-snapshots']/username/text()")
     }
+    println "gpgEnabled: " + ext.gpgEnabled
     if ( gradle.ext.springBootApi && gradle.ext.springBootVersion ) {
       ext.springBootApi = gradle.ext.springBootApi
       ext.springBootVersion = gradle.ext.springBootVersion
@@ -206,6 +222,10 @@ allprojects {
       uploadArchives {
         repositories {
           mavenDeployer {
+            if (ext.gpgEnabled) {
+              beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            }
+
             // For *-SNAPSHOT versions the snapshotRepository is used. Otherwise the releases repo is used.
             repository(url: "${ext.repositoryReleases}") {
               authentication(userName: "${repositoryReleasesUser}", password: "${repositoryReleasesPass}")

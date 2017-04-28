@@ -147,9 +147,10 @@ allprojects {
       ext."signing.keyId" = ext.gpgKeyid
       ext."signing.password" = ext.gpgPassphrase
       ext."signing.secretKeyRingFile" = "$rootDir/secring.gpg"
+      ext.signingRequired = isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives")
       apply plugin: 'signing'
       signing {
-        required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
+        required { ext.signingRequired }
         sign configurations.archives
       }
     }
@@ -170,6 +171,8 @@ allprojects {
       println "${ext.infrastructure}-nexus-snapshots username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-snapshots']/username/text()")
     }
     println "gpgEnabled: " + ext.gpgEnabled
+    println "isReleaseVersion: " + ext.isReleaseVersion
+    println "signingRequired: " + ext.signingRequired
     if ( gradle.ext.springBootApi && gradle.ext.springBootVersion ) {
       ext.springBootApi = gradle.ext.springBootApi
       ext.springBootVersion = gradle.ext.springBootVersion

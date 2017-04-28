@@ -134,11 +134,16 @@ allprojects {
       ext.testFailureIgnore = "false"
     }
 
+    if ( gradle.ext.springBootApi && gradle.ext.springBootVersion ) {
+      ext.springBootApi = gradle.ext.springBootApi
+      ext.springBootVersion = gradle.ext.springBootVersion
+    }
+
     ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
     def secringGpg = new File("$rootDir/secring.gpg")
     ext.gpgKeyid = System.getenv("GPG_KEYID")
     ext.gpgPassphrase = System.getenv("GPG_PASSPHRASE")
-    if (secringGpg.exists() && secringGpg.isFile() && gpgKeyid && gpgPassphrase) {
+    if (secringGpg.exists() && secringGpg.isFile() && ext.gpgKeyid && ext.gpgPassphrase) {
       ext.gpgEnabled = true
     } else {
       ext.gpgEnabled = false
@@ -147,7 +152,10 @@ allprojects {
       ext."signing.keyId" = ext.gpgKeyid
       ext."signing.password" = ext.gpgPassphrase
       ext."signing.secretKeyRingFile" = "$rootDir/secring.gpg"
-      apply plugin: 'signing'
+      if (rootProject == project) {
+        println "apply signing on rootProject"
+        apply plugin: 'signing'
+      }
     }
 
     println ""
@@ -168,8 +176,6 @@ allprojects {
     println "gpgEnabled: " + ext.gpgEnabled
     println "isReleaseVersion: " + ext.isReleaseVersion
     if ( gradle.ext.springBootApi && gradle.ext.springBootVersion ) {
-      ext.springBootApi = gradle.ext.springBootApi
-      ext.springBootVersion = gradle.ext.springBootVersion
       println "springBootApi: " + ext.springBootApi
       println "springBootVersion: " + ext.springBootVersion
     }
@@ -246,7 +252,9 @@ allprojects {
     if ( "${springBootVersion}" ) {
       archivesBaseName = "${project.name}-spring-boot-${springBootVersion}"
     }
+
     if (gpgEnabled) {
+      apply plugin: 'signing'
       signing {
         required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
         sign configurations.archives

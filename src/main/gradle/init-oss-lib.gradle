@@ -1,6 +1,55 @@
 // see: https://docs.gradle.org/current/userguide/init_scripts.html
 // see: http://blog.csdn.net/sbsujjbcy/article/details/52079413
 
+void setRepositories(ext) {
+  def envMavenOpts = System.getenv("MAVEN_OPTS")
+  if (envMavenOpts) {
+    def optionMirror = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.mirror=([^\\s]+)");
+    def mirror = optionMirror ? optionMirror.replace("-D${ext.infrastructure}-nexus.mirror=", "") : null
+    def optionRepositories = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.repositories=([^\\s]+)")
+    def repositories = optionRepositories ? optionRepositories.replace("-D${ext.infrastructure}-nexus.repositories=", "") : null
+    ext.nexusMirror = mirror ? mirror : null
+    ext.nexusRepositories = repositories ? repositories : null
+  } else if ("local" == "${ext.infrastructure}") {
+    ext.nexusMirror = 'http://nexus.local:28081/nexus/repository/maven-public/'
+    ext.nexusRepositories = 'http://nexus.local:28081/nexus/repository'
+  } else {
+    ext.nexusMirror = null
+    ext.nexusRepositories = null
+  }
+
+  if ("github" == "${ext.infrastructure}") {
+    def releasesUrl = System.getenv("NEXUS_RELEASE_DISTRIBUTE_URL")
+    def snapshotsUrl = System.getenv("NEXUS_SNAPSHOT_DISTRIBUTE_URL")
+    ext.repositoryReleases = releasesUrl ? releasesUrl : 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+    ext.repositorySnapshots = snapshotsUrl ? snapshotsUrl : 'https://oss.sonatype.org/content/repositories/snapshots/'
+  } else if (ext.nexusRepositories?.trim()) {
+    if ('local'.equals(ext.infrastructure)) {
+      ext.repositoryReleases = "${ext.nexusRepositories}/maven-releases/"
+      ext.repositorySnapshots = "${ext.nexusRepositories}/maven-snapshots/"
+    } else {
+      ext.repositoryReleases = "${ext.nexusRepositories}/releases/"
+      ext.repositorySnapshots = "${ext.nexusRepositories}/snapshots/"
+    }
+  } else {
+    ext.repositoryReleases = null
+    ext.repositorySnapshots = null
+  }
+
+  ext.settingsFileOpt = project.hasProperty('settings') ? project.getProperty('settings') : ""
+  ext.securityFileOpt = project.hasProperty('settings.security') ? project.getProperty('settings.security') : ""
+  if (ext.settingsFileOpt || ext.securityFileOpt) {
+    ext.mavenSettings = new cn.home1.tools.maven.SettingsDecoder(ext.settingsFileOpt, ext.securityFileOpt, false)
+  } else {
+    ext.mavenSettings = new cn.home1.tools.maven.SettingsDecoder()
+  }
+
+  ext.repositoryReleasesUser = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/username/text()")
+  ext.repositoryReleasesPass = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/password/text()")
+  ext.repositorySnapshotsUser = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-snapshots']/username/text()")
+  ext.repositorySnapshotsPass = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-snapshots']/password/text()")
+}
+
 initscript {
   repositories {
     jcenter()
@@ -43,52 +92,7 @@ allprojects {
       ext.infrastructure = 'local'
     }
 
-    def envMavenOpts = System.getenv("MAVEN_OPTS")
-    if (envMavenOpts) {
-      def optionMirror = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.mirror=([^\\s]+)");
-      def mirror = optionMirror ? optionMirror.replace("-D${ext.infrastructure}-nexus.mirror=", "") : null
-      def optionRepositories = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.repositories=([^\\s]+)")
-      def repositories = optionRepositories ? optionRepositories.replace("-D${ext.infrastructure}-nexus.repositories=", "") : null
-      ext.nexusMirror = mirror ? mirror : null
-      ext.nexusRepositories = repositories ? repositories : null
-    } else if ("local" == "${ext.infrastructure}") {
-      ext.nexusMirror = 'http://nexus.local:28081/nexus/repository/maven-public/'
-      ext.nexusRepositories = 'http://nexus.local:28081/nexus/repository'
-    } else {
-      ext.nexusMirror = null
-      ext.nexusRepositories = null
-    }
-
-    if ("github" == "${ext.infrastructure}") {
-      def releasesUrl = System.getenv("NEXUS_RELEASE_DISTRIBUTE_URL")
-      def snapshotsUrl = System.getenv("NEXUS_SNAPSHOT_DISTRIBUTE_URL")
-      ext.repositoryReleases = releasesUrl ? releasesUrl : 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-      ext.repositorySnapshots = snapshotsUrl ? snapshotsUrl : 'https://oss.sonatype.org/content/repositories/snapshots/'
-    } else if (ext.nexusRepositories?.trim()) {
-      if ('local'.equals(ext.infrastructure)) {
-        ext.repositoryReleases = "${ext.nexusRepositories}/maven-releases/"
-        ext.repositorySnapshots = "${ext.nexusRepositories}/maven-snapshots/"
-      } else {
-        ext.repositoryReleases = "${ext.nexusRepositories}/releases/"
-        ext.repositorySnapshots = "${ext.nexusRepositories}/snapshots/"
-      }
-    } else {
-      ext.repositoryReleases = null
-      ext.repositorySnapshots = null
-    }
-
-    ext.settingsFileOpt = project.hasProperty('settings') ? project.getProperty('settings') : ""
-    ext.securityFileOpt = project.hasProperty('settings.security') ? project.getProperty('settings.security') : ""
-    if (ext.settingsFileOpt || ext.securityFileOpt) {
-      ext.mavenSettings = new cn.home1.tools.maven.SettingsDecoder(ext.settingsFileOpt, ext.securityFileOpt, false)
-    } else {
-      ext.mavenSettings = new cn.home1.tools.maven.SettingsDecoder()
-    }
-
-    ext.repositoryReleasesUser = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/username/text()")
-    ext.repositoryReleasesPass = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/password/text()")
-    ext.repositorySnapshotsUser = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-snapshots']/username/text()")
-    ext.repositorySnapshotsPass = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-snapshots']/password/text()")
+    setRepositories(ext)
 
     if (project.hasProperty('testFailureIgnore')) {
       ext.testFailureIgnore = project.getProperty('testFailureIgnore')
@@ -218,7 +222,7 @@ allprojects {
       }
     }
 
-    if (ext.nexusRepositories?.trim() && ext.repositorySnapshots?.trim()) {
+    if (nexusRepositories?.trim() && repositorySnapshots?.trim()) {
       println "uploadArchives: true"
       uploadArchives {
         repositories {

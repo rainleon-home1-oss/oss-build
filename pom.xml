@@ -328,6 +328,15 @@
                             </exclusions>
                         </dependency>
                     </dependencies>
+                    <!-- see: http://maven.apache.org/plugins/maven-site-plugin/maven-3.html#Site_descriptor_attachment -->
+                    <executions>
+                        <execution>
+                            <id>attach-descriptor</id>
+                            <goals>
+                                <goal>attach-descriptor</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.asciidoctor</groupId>

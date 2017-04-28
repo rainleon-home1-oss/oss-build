@@ -49,11 +49,32 @@ allprojects {
       def mirror = optionMirror ? optionMirror.replace("-D${ext.infrastructure}-nexus.mirror=", "") : null
       def optionRepositories = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.repositories=([^\\s]+)")
       def repositories = optionRepositories ? optionRepositories.replace("-D${ext.infrastructure}-nexus.repositories=", "") : null
-      ext.nexusMirror = mirror ? mirror : null //http://nexus.local:28081/nexus/repository/maven-public/
-      ext.nexusRepositories = repositories ? repositories : 'http://nexus.local:28081/nexus/repository'
-    } else {
+      ext.nexusMirror = mirror ? mirror : null
+      ext.nexusRepositories = repositories ? repositories : null
+    } else if ("local" == "${ext.infrastructure}") {
       ext.nexusMirror = 'http://nexus.local:28081/nexus/repository/maven-public/'
       ext.nexusRepositories = 'http://nexus.local:28081/nexus/repository'
+    } else {
+      ext.nexusMirror = null
+      ext.nexusRepositories = null
+    }
+
+    if ("github" == "${ext.infrastructure}") {
+      def releasesUrl = System.getenv("NEXUS_RELEASE_DISTRIBUTE_URL")
+      def snapshotsUrl = System.getenv("NEXUS_SNAPSHOT_DISTRIBUTE_URL")
+      ext.repositoryReleases = releasesUrl ? releasesUrl : 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+      ext.repositorySnapshots = snapshotsUrl ? snapshotsUrl : 'https://oss.sonatype.org/content/repositories/snapshots/'
+    } else if (ext.nexusRepositories?.trim()) {
+      if ('local'.equals(ext.infrastructure)) {
+        ext.repositoryReleases = "${ext.nexusRepositories}/maven-releases/"
+        ext.repositorySnapshots = "${ext.nexusRepositories}/maven-snapshots/"
+      } else {
+        ext.repositoryReleases = "${ext.nexusRepositories}/releases/"
+        ext.repositorySnapshots = "${ext.nexusRepositories}/snapshots/"
+      }
+    } else {
+      ext.repositoryReleases = null
+      ext.repositorySnapshots = null
     }
 
     ext.settingsFileOpt = project.hasProperty('settings') ? project.getProperty('settings') : ""
@@ -63,6 +84,7 @@ allprojects {
     } else {
       ext.mavenSettings = new cn.home1.tools.maven.SettingsDecoder()
     }
+
     ext.repositoryReleasesUser = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/username/text()")
     ext.repositoryReleasesPass = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/password/text()")
     ext.repositorySnapshotsUser = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-snapshots']/username/text()")
@@ -103,7 +125,7 @@ allprojects {
     mavenLocal()
     //maven { url 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
     if (nexusMirror?.trim()) {
-      println "proxy repositories using: ${infrastructure} ${nexusMirror}"
+      println "proxy repositories using: ${ext.infrastructure} ${nexusMirror}"
       maven { url "${nexusMirror}" }
     }
     mavenCentral()
@@ -177,42 +199,22 @@ allprojects {
         }
       }
     }
-    if (nexusRepositories?.trim()) {
-      if ('local'.equals(infrastructure)) {
-        uploadArchives {
-          repositories {
-            mavenDeployer {
-              // For *-SNAPSHOT versions the snapshotRepository is used. Otherwise the releases repo is used.
-              repository(url: "${nexusRepositories}/maven-releases/") {
-                authentication(userName: "${repositoryReleasesUser}", password: "${repositoryReleasesPass}")
-              }
-              snapshotRepository(url: "${nexusRepositories}/maven-snapshots/") {
-                authentication(userName: "${repositorySnapshotsUser}", password: "${repositorySnapshotsPass}")
-              }
-              pom.version = "${project.version}"
-              pom.artifactId = "${project.name}"
-              if ( "${springBootVersion}" ) {
-                pom.artifactId = "${project.name}-spring-boot-${springBootVersion}"
-              }
+
+    if (ext.repositorySnapshots?.trim() && ext.repositoryReleases?.trim()) {
+      uploadArchives {
+        repositories {
+          mavenDeployer {
+            // For *-SNAPSHOT versions the snapshotRepository is used. Otherwise the releases repo is used.
+            repository(url: "${ext.repositoryReleases}") {
+              authentication(userName: "${repositoryReleasesUser}", password: "${repositoryReleasesPass}")
             }
-          }
-        }
-      } else {
-        uploadArchives {
-          repositories {
-            mavenDeployer {
-              // For *-SNAPSHOT versions the snapshotRepository is used. Otherwise the releases repo is used.
-              repository(url: "${nexusRepositories}/releases/") {
-                authentication(userName: "${repositoryReleasesUser}", password: "${repositoryReleasesPass}")
-              }
-              snapshotRepository(url: "${nexusRepositories}/snapshots/") {
-                authentication(userName: "${repositorySnapshotsUser}", password: "${repositorySnapshotsPass}")
-              }
-              pom.version = "${project.version}"
-              pom.artifactId = "${project.name}"
-              if ( "${springBootVersion}" ) {
-                pom.artifactId = "${project.name}-spring-boot-${springBootVersion}"
-              }
+            snapshotRepository(url: "${ext.repositorySnapshots}") {
+              authentication(userName: "${repositorySnapshotsUser}", password: "${repositorySnapshotsPass}")
+            }
+            pom.version = "${project.version}"
+            pom.artifactId = "${project.name}"
+            if ( "${springBootVersion}" ) {
+              pom.artifactId = "${project.name}-spring-boot-${springBootVersion}"
             }
           }
         }

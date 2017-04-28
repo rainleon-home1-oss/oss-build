@@ -29,26 +29,26 @@ gradle_analysis() {
 
 gradle_test_and_build() {
     if [ "true" == "${BUILD_TEST_SKIP}" ]; then
-        gradle --refresh-dependencies ${GRADLE_PROPERTIES} clean build install -x test
+        if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ]; then
+            gradle --refresh-dependencies ${GRADLE_PROPERTIES} clean build signArchives install -x test
+        else
+            gradle --refresh-dependencies ${GRADLE_PROPERTIES} clean build install -x test
+        fi
     else
-        gradle --refresh-dependencies ${GRADLE_PROPERTIES} clean build integrationTest install
+        if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ]; then
+            gradle --refresh-dependencies ${GRADLE_PROPERTIES} clean build signArchives integrationTest install
+        else
+            gradle --refresh-dependencies ${GRADLE_PROPERTIES} clean build integrationTest install
+        fi
     fi
 }
 
 gradle_publish_snapshot() {
-    if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ]; then
-        gradle ${GRADLE_PROPERTIES} signArchives uploadArchives -x test
-    else
-        gradle ${GRADLE_PROPERTIES} uploadArchives -x test
-    fi
+    gradle ${GRADLE_PROPERTIES} uploadArchives -x test
 }
 
 gradle_publish_release() {
-    if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ]; then
-        gradle ${GRADLE_PROPERTIES} signArchives uploadArchives -x test
-    else
-        gradle ${GRADLE_PROPERTIES} uploadArchives -x test
-    fi
+    gradle ${GRADLE_PROPERTIES} uploadArchives -x test
 }
 
 gradle_publish_maven_site(){

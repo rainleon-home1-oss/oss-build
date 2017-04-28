@@ -75,7 +75,7 @@ def pomConfig = {
   license.appendNode('distribution', 'repo')
 
   def developers = asNode().appendNode('developers')
-  def developer = licenses.appendNode('developer')
+  def developer = developers.appendNode('developer')
   developer.appendNode('id', 'home1-oss-team')
   developer.appendNode('name', 'The home1-oss Development Team')
   developer.appendNode('organization', 'home1')

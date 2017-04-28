@@ -37,17 +37,17 @@ if [ "internal" == "${INFRASTRUCTURE}" ]; then
     curl -H 'Cache-Control: no-cache' -H "PRIVATE-TOKEN: ${GIT_SERVICE_TOKEN}" -t utf-8 -s -L -o ~/.docker/config.json ${BUILD_CONFIG_LOC}/src/main/docker/config.json
 fi
 
+if [ -n "${DOCKERHUB_PASS}" ] && [ -n "${DOCKERHUB_USER}" ]; then
+    docker login -p="${DOCKERHUB_PASS}" -u="${DOCKERHUB_USER}" https://registry-1.docker.io/v1/
+    docker login -p="${DOCKERHUB_PASS}" -u="${DOCKERHUB_USER}" https://registry-1.docker.io/v2/
+fi
+
 echo "eval \$(curl -H 'Cache-Control: no-cache' -s -L ${BUILD_SCRIPT_LOC}/src/main/ci-script/lib_java.sh)"
 eval "$(curl -H 'Cache-Control: no-cache' -s -L ${BUILD_SCRIPT_LOC}/src/main/ci-script/lib_java.sh)"
 echo "eval \$(curl -H 'Cache-Control: no-cache' -s -L ${BUILD_SCRIPT_LOC}/src/main/ci-script/lib_maven.sh)"
 eval "$(curl -H 'Cache-Control: no-cache' -s -L ${BUILD_SCRIPT_LOC}/src/main/ci-script/lib_maven.sh)"
 echo "eval \$(curl -H 'Cache-Control: no-cache' -s -L ${BUILD_SCRIPT_LOC}/src/main/ci-script/lib_gradle.sh)"
 eval "$(curl -H 'Cache-Control: no-cache' -s -L ${BUILD_SCRIPT_LOC}/src/main/ci-script/lib_gradle.sh)"
-
-if [ -n "${DOCKERHUB_PASS}" ] && [ -n "${DOCKERHUB_USER}" ]; then
-    docker login -p="${DOCKERHUB_PASS}" -u="${DOCKERHUB_USER}" https://registry-1.docker.io/v1/
-    docker login -p="${DOCKERHUB_PASS}" -u="${DOCKERHUB_USER}" https://registry-1.docker.io/v2/
-fi
 
 analysis() {
     echo "analysis @ $(pwd)";

@@ -123,7 +123,7 @@ allprojects {
     println "settingsFileOpt: " + ext.settingsFileOpt + ", securityFileOpt: " + ext.securityFileOpt
     println "repositoryReleases: " + ext.repositoryReleases
     println "repositorySnapshots: " + ext.repositorySnapshots
-    // TODO fix nexus.local-releases and nexus.local-snapshots
+    // TODO fix local-nexus-releases and local-nexus-snapshots
     if ("github" != "${ext.infrastructure}") {
       println "${ext.infrastructure}-nexus-releases username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/username/text()")
       println "${ext.infrastructure}-nexus-snapshots username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-snapshots']/username/text()")

@@ -55,7 +55,7 @@ if [ "local" == "${INFRASTRUCTURE}" ]; then
     NEXUS_REPO_RELEASES="${LOCAL_NEXUS}/repository/maven-releases";
     NEXUS_REPO_SNAPSHOTS="${LOCAL_NEXUS}/repository/maven-snapshots";
     NEXUS_REPO_THIRDPARTY="${LOCAL_NEXUS}/repository/maven-thirdparty";
-    NEXUS_REPO_ID="nexus.local-thirdparty";
+    NEXUS_REPO_ID="local-nexus-thirdparty";
 else
     NEXUS_REPO_RELEASES="${INTERNAL_NEXUS}/content/repositories/releases";
     NEXUS_REPO_SNAPSHOTS="${INTERNAL_NEXUS}/content/repositories/snapshots";

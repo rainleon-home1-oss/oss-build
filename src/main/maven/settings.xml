@@ -14,24 +14,18 @@
 
     <mirrors>
         <!-- mirrorOf: pom.xml repositories repository id -->
-        <mirror>
-            <id>nexus.local-mirror</id>
+        <!--mirror>
+            <id>local-nexus-mirror</id>
             <name>local nexus mirror</name>
             <url>${nexus.local.mirror}</url>
-            <!--mirrorOf>central,spring-libs-release,spring-milestone,spring-libs-snapshot,conjars.org,clojars.org,org.jboss.repository,codehaus-mule-repo,repo.jenkins-ci.org</mirrorOf-->
-            <mirrorOf>external:*</mirrorOf>
-        </mirror>
+            <!-mirrorOf>central,spring-libs-release,spring-milestone,spring-libs-snapshot,conjars.org,clojars.org,org.jboss.repository,codehaus-mule-repo,repo.jenkins-ci.org</mirrorOf->
+            <mirrorOf>external:*,!github-chshawkn-wagon-maven-plugin</mirrorOf>
+        </mirror-->
         <!--mirror>
             <id>internal-nexus-mirror</id>
             <name>internal nexus mirror</name>
             <url>${internal-nexus.mirror}</url>
-            <mirrorOf>external:*</mirrorOf>
-        </mirror-->
-        <!--mirror>
-            <id>chinaOS</id>
-            <name>OSChina Central</name>
-            <url>http://maven.oschina.net/content/groups/public/</url>
-            <mirrorOf>central</mirrorOf>
+            <mirrorOf>external:*,!github-chshawkn-wagon-maven-plugin</mirrorOf>
         </mirror-->
     </mirrors>
 
@@ -67,17 +61,17 @@
         <!-- accept RSA key fingerprint -->
         <!-- ssh -o UserKnownHostsFile=~/.ssh/known_hosts root@local-mvnsite -p 10022 -->
         <server>
-            <id>nexus.local-releases</id>
+            <id>local-nexus-releases</id>
             <username>deployment</username>
             <password>{L70pFo7kvgoHK3T/sD64ZmfhkyKXPShRU0sJG0PXNWc=}</password>
         </server>
         <server>
-            <id>nexus.local-snapshots</id>
+            <id>local-nexus-snapshots</id>
             <username>deployment</username>
             <password>{L70pFo7kvgoHK3T/sD64ZmfhkyKXPShRU0sJG0PXNWc=}</password>
         </server>
         <server>
-            <id>nexus.local-thirdparty</id>
+            <id>local-nexus-thirdparty</id>
             <username>deployment</username>
             <password>{L70pFo7kvgoHK3T/sD64ZmfhkyKXPShRU0sJG0PXNWc=}</password>
         </server>
@@ -116,7 +110,7 @@
             <id>internal-mvnsite</id>
             <username>root</username>
             <!--passphrase>if required</passphrase-->
-            <privateKey>${user.home}/.ssh/id_rsa</privateKey>
+            <privateKey>${user.home}/.ssh/internal-mvnsite</privateKey>
             <configuration>
                 <!-- see: https://maven.apache.org/wagon/apidocs/index.html -->
                 <!-- java.lang.ClassNotFoundException: org.apache.maven.wagon.providers.ssh.knownhost.NullKnownHostProvider -->
@@ -155,9 +149,17 @@
             </properties>
             <repositories>
                 <repository>
+                    <id>central</id>
+                    <name>Central Repository</name>
+                    <url>https://repo.maven.apache.org/maven2</url>
+                    <layout>default</layout>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
                     <id>github-nexus-releases</id>
                     <name>central releases</name>
-                    <!--url>https://oss.sonatype.org/content/repositories/releases/</url-->
                     <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>false</enabled></snapshots>
@@ -172,9 +174,20 @@
             </repositories>
             <pluginRepositories>
                 <pluginRepository>
+                    <id>central</id>
+                    <name>Central Repository</name>
+                    <url>https://repo.maven.apache.org/maven2</url>
+                    <layout>default</layout>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <releases>
+                        <updatePolicy>never</updatePolicy>
+                    </releases>
+                </pluginRepository>
+                <pluginRepository>
                     <id>github-nexus-releases</id>
                     <name>central releases</name>
-                    <!--url>https://oss.sonatype.org/content/repositories/releases/</url-->
                     <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>false</enabled></snapshots>
@@ -199,24 +212,26 @@
             <id>local-infrastructure</id>
             <properties>
                 <sonar.host.url>${local-sonar.host.url}</sonar.host.url>
+                <!--sonar.jdbc.url>jdbc:h2:tcp://local-sonarqube/sonar</sonar.jdbc.url>
+                <sonar.jdbc.url>jdbc:postgresql://local-postgresql:5432/sonar</sonar.jdbc.url-->
             </properties>
             <repositories>
                 <repository>
-                    <id>nexus.local-releases</id>
+                    <id>local-nexus-releases</id>
                     <name>local nexus releases</name>
                     <url>${nexus.local.repositories}/maven-releases/</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>false</enabled></snapshots>
                 </repository>
                 <repository>
-                    <id>nexus.local-snapshots</id>
+                    <id>local-nexus-snapshots</id>
                     <name>local nexus snapshots</name>
                     <url>${nexus.local.repositories}/maven-snapshots/</url>
                     <releases><enabled>false</enabled></releases>
                     <snapshots><enabled>true</enabled></snapshots>
                 </repository>
                 <repository>
-                    <id>nexus.local-thirdparty</id>
+                    <id>local-nexus-thirdparty</id>
                     <name>local nexus thirdparty</name>
                     <url>${nexus.local.repositories}/maven-thirdparty/</url>
                     <releases><enabled>true</enabled></releases>
@@ -225,21 +240,21 @@
             </repositories>
             <pluginRepositories>
                 <pluginRepository>
-                    <id>nexus.local-releases</id>
+                    <id>local-nexus-releases</id>
                     <name>local nexus releases</name>
                     <url>${nexus.local.repositories}/maven-releases/</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>false</enabled></snapshots>
                 </pluginRepository>
                 <pluginRepository>
-                    <id>nexus.local-snapshots</id>
+                    <id>local-nexus-snapshots</id>
                     <name>local nexus snapshots</name>
                     <url>${nexus.local.repositories}/maven-snapshots/</url>
                     <releases><enabled>false</enabled></releases>
                     <snapshots><enabled>true</enabled></snapshots>
                 </pluginRepository>
                 <pluginRepository>
-                    <id>nexus.local-thirdparty</id>
+                    <id>local-nexus-thirdparty</id>
                     <name>local nexus thirdparty</name>
                     <url>${nexus.local.repositories}/maven-thirdparty/</url>
                     <releases><enabled>true</enabled></releases>

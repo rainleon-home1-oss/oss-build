@@ -11,6 +11,11 @@
     <url>https://github.com/home1-oss/oss-build</url>
     <version>1.0.10.OSS-SNAPSHOT</version>
 
+    <ciManagement>
+        <system>Travis CI</system>
+        <url>https://travis-ci.org/home1-oss/oss-build</url>
+    </ciManagement>
+
     <developers>
         <developer>
             <name>Haolun Zhang</name>
@@ -37,11 +42,6 @@
             <url>https://github.com/sealake</url>
         </developer>
     </developers>
-
-    <ciManagement>
-        <system>Travis CI</system>
-        <url>https://travis-ci.org/home1-oss/oss-build</url>
-    </ciManagement>
 
     <issueManagement>
         <system>GitHub Issues</system>
@@ -1050,16 +1050,16 @@
             </activation>
             <properties>
                 <wagon.merge-maven-repos.target>${nexus.local.repositories}/maven-${build.publish.channel}s</wagon.merge-maven-repos.target>
-                <wagon.merge-maven-repos.targetId>nexus.local-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
+                <wagon.merge-maven-repos.targetId>local-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
                 <docker-maven.useConfigFile>false</docker-maven.useConfigFile>
             </properties>
             <distributionManagement>
                 <repository>
-                    <id>nexus.local-releases</id>
+                    <id>local-nexus-releases</id>
                     <url>${nexus.local.repositories}/maven-releases/</url>
                 </repository>
                 <snapshotRepository>
-                    <id>nexus.local-snapshots</id>
+                    <id>local-nexus-snapshots</id>
                     <url>${nexus.local.repositories}/maven-snapshots/</url>
                 </snapshotRepository>
                 <site>

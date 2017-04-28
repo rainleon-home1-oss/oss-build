@@ -148,10 +148,6 @@ allprojects {
       ext."signing.password" = ext.gpgPassphrase
       ext."signing.secretKeyRingFile" = "$rootDir/secring.gpg"
       apply plugin: 'signing'
-      signing {
-        required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
-        sign configurations.archives
-      }
     }
 
     println ""
@@ -249,6 +245,12 @@ allprojects {
     apply plugin: 'java'
     if ( "${springBootVersion}" ) {
       archivesBaseName = "${project.name}-spring-boot-${springBootVersion}"
+    }
+    if (gpgEnabled) {
+      signing {
+        required { isReleaseVersion && gradle.taskGraph.hasTask("uploadArchives") }
+        sign configurations.archives
+      }
     }
 
     // see: https://docs.gradle.org/current/userguide/maven_plugin.html

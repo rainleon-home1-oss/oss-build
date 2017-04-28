@@ -51,6 +51,8 @@
       <emptyLine />
       <package name="checkers" withSubpackages="true" static="false" />
       <emptyLine />
+      <package name="cn" withSubpackages="true" static="false" />
+      <emptyLine />
       <package name="co" withSubpackages="true" static="false" />
       <emptyLine />
       <package name="com" withSubpackages="true" static="false" />

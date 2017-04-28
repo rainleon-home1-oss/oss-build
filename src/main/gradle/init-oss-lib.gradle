@@ -106,6 +106,8 @@ allprojects {
     println "nexusRepositories: " + ext.nexusRepositories
     println "revision: " + ext.revision
     println "settingsFileOpt: " + ext.settingsFileOpt + ", securityFileOpt: " + ext.securityFileOpt
+    println "repositoryReleases: " + ext.repositoryReleases
+    println "repositorySnapshots: " + ext.repositorySnapshots
     // TODO fix nexus.local-releases and nexus.local-snapshots
     if ("github" != "${ext.infrastructure}") {
       println "${ext.infrastructure}-nexus-releases username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/username/text()")
@@ -200,7 +202,7 @@ allprojects {
       }
     }
 
-    if (ext.repositorySnapshots?.trim() && ext.repositoryReleases?.trim()) {
+    if (ext.hasProperty('repositorySnapshots') && ext.hasProperty('repositoryReleases')) {
       uploadArchives {
         repositories {
           mavenDeployer {

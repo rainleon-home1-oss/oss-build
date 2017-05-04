@@ -43,7 +43,7 @@ if ([ "${GIT_REPO_OWNER}" == "${BUILD_HOME1_OSS_OWNER}" ] && [ "pull_request" !=
     case "$CI_BUILD_REF_NAME" in
         "develop")
             export BUILD_PUBLISH_CHANNEL="snapshot";
-            $@
+            $@;
             ;;
         release*)
             export BUILD_PUBLISH_CHANNEL="release";
@@ -52,7 +52,7 @@ if ([ "${GIT_REPO_OWNER}" == "${BUILD_HOME1_OSS_OWNER}" ] && [ "pull_request" !=
             elif [ "${1}" == "analysis" ]; then
                 echo "skip analysis as not at develop branch";
             else
-                $@
+                $@;
             fi
             ;;
         feature*|hotfix*|"master"|*)

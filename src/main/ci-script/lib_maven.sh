@@ -142,6 +142,9 @@ maven_publish_maven_site(){
         if [ ! -z "${BUILD_SITE_PATH_PREFIX}" ]; then
             export MAVEN_OPTS="${MAVEN_OPTS} -Dsite.path=${BUILD_SITE_PATH_PREFIX}-${BUILD_PUBLISH_CHANNEL}"
         fi
+        export MAVEN_OPTS="${MAVEN_OPTS} -Dbuild.publish.channel=${BUILD_PUBLISH_CHANNEL}"
+
+        echo "maven_publish_maven_site: MAVEN_OPTS: ${MAVEN_OPTS}"
         if [ "${INFRASTRUCTURE}" != "github" ]; then
             echo yes | mvn ${MAVEN_SETTINGS} site:site site:stage site:stage-deploy | grep -v 'Downloading:' | grep -Ev '^Generating .+\.html\.\.\.'
         else

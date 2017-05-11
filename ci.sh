@@ -31,11 +31,13 @@ export BUILD_SITE_GITHUB_REPOSITORY_NAME="home1-oss"
 export BUILD_TEST_FAILURE_IGNORE="false"
 export BUILD_TEST_SKIP="false"
 
+export OSS_BUILD_GIT_SERVICE="https://github.com"
+export OSS_BUILD_GIT_REPO_OWNER="home1-oss"
 
 
 ### OSS CI CALL REMOTE CI SCRIPT BEGIN
-echo "eval \$(curl -s -L ${GIT_SERVICE}/${GIT_REPO_OWNER}/oss-build/raw/${BUILD_SCRIPT_REF}/src/main/ci-script/ci.sh)"
-eval "$(curl -s -L ${GIT_SERVICE}/${GIT_REPO_OWNER}/oss-build/raw/${BUILD_SCRIPT_REF}/src/main/ci-script/ci.sh)"
+echo "eval \$(curl -s -L ${OSS_BUILD_GIT_SERVICE}/${OSS_BUILD_GIT_REPO_OWNER}/oss-build/raw/${BUILD_SCRIPT_REF}/src/main/ci-script/ci.sh)"
+eval "$(curl -s -L ${OSS_BUILD_GIT_SERVICE}/${OSS_BUILD_GIT_REPO_OWNER}/oss-build/raw/${BUILD_SCRIPT_REF}/src/main/ci-script/ci.sh)"
 ### OSS CI CALL REMOTE CI SCRIPT END
 
 # home1-oss && not pr trigger will on condition

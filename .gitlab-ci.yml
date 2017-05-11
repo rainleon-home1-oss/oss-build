@@ -1,3 +1,8 @@
+before_script:
+  - bash export OSS_BUILD_REF_BRANCH="develop"
+  - bash export OSS_BUILD_CONFIG_REF_BRANCH="develop"
+#  - bash export OSS_BUILD_GIT_SERVICE="https://github.com"
+#  - bash export OSS_BUILD_GIT_REPO_OWNER="home1-oss"
 
 stages:
 - test_and_build
@@ -17,6 +22,7 @@ on_develop_push:
   script:
   - echo "on_develop_push"
   - bash ci.sh publish_snapshot
+  - bash ci.sh publish_maven_site
   only:
   - develop
   dependencies:
@@ -27,6 +33,7 @@ on_master_push:
   script:
   - echo "on_master_push"
   - bash ci.sh publish_release
+  - bash ci.sh publish_maven_site
   only:
   - master
   dependencies:

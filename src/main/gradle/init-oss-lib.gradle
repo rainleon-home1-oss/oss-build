@@ -28,8 +28,8 @@ void setRepositories(project, ext) {
       ext.repositoryReleases = "${ext.nexusRepositories}/maven-releases/"
       ext.repositorySnapshots = "${ext.nexusRepositories}/maven-snapshots/"
     } else {
-      ext.repositoryReleases = "${ext.nexusRepositories}/releases/"
-      ext.repositorySnapshots = "${ext.nexusRepositories}/snapshots/"
+      ext.repositoryReleases = "${ext.nexusRepositories}/maven-releases/"
+      ext.repositorySnapshots = "${ext.nexusRepositories}/maven-snapshots/"
     }
   } else {
     ext.repositoryReleases = null

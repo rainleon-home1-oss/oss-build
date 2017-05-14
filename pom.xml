@@ -1078,18 +1078,18 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <wagon.merge-maven-repos.target>${internal-nexus.repositories}/${build.publish.channel}s</wagon.merge-maven-repos.target>
+                <wagon.merge-maven-repos.target>${internal-nexus.repositories}/maven-${build.publish.channel}s</wagon.merge-maven-repos.target>
                 <wagon.merge-maven-repos.targetId>internal-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
                 <docker-maven.useConfigFile>true</docker-maven.useConfigFile>
             </properties>
             <distributionManagement>
                 <repository>
                     <id>internal-nexus-releases</id>
-                    <url>${internal-nexus.repositories}/releases</url>
+                    <url>${internal-nexus.repositories}/maven-releases</url>
                 </repository>
                 <snapshotRepository>
                     <id>internal-nexus-snapshots</id>
-                    <url>${internal-nexus.repositories}/snapshots</url>
+                    <url>${internal-nexus.repositories}/maven-snapshots</url>
                 </snapshotRepository>
                 <site>
                     <id>internal-mvnsite</id>

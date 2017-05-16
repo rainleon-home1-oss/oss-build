@@ -1,8 +1,8 @@
 before_script:
-  - bash export OSS_BUILD_REF_BRANCH="develop"
-  - bash export OSS_BUILD_CONFIG_REF_BRANCH="develop"
-#  - bash export OSS_BUILD_GIT_SERVICE="https://github.com"
-#  - bash export OSS_BUILD_GIT_REPO_OWNER="home1-oss"
+  - export OSS_BUILD_REF_BRANCH="develop"
+  - export OSS_BUILD_CONFIG_REF_BRANCH="develop"
+#  - export OSS_BUILD_GIT_SERVICE="https://github.com"
+#  - export OSS_BUILD_GIT_REPO_OWNER="home1-oss"
 
 stages:
 - test_and_build

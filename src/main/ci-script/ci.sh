@@ -6,6 +6,9 @@ if [ -z "${BUILD_SITE}" ]; then BUILD_SITE="false"; fi
 if [ -z "${BUILD_TEST_FAILURE_IGNORE}" ]; then BUILD_TEST_FAILURE_IGNORE="false"; fi
 if [ -z "${BUILD_TEST_SKIP}" ]; then BUILD_TEST_SKIP="false"; fi
 
+if [ -z "${OSS_BUILD_GIT_SERVICE}" ]; then OSS_BUILD_GIT_SERVICE="https://github.com"; fi
+if [ -z "${OSS_BUILD_GIT_REPO_OWNER}" ]; then OSS_BUILD_GIT_REPO_OWNER="home1-oss"; fi
+
 echo "MAVEN_SETTINGS_SECURITY_FILE: ${MAVEN_SETTINGS_SECURITY_FILE}"
 
 echo "pwd: $(pwd)"
@@ -25,7 +28,7 @@ if [ -z "${OSS_BUILD_CONFIG_REF_BRANCH}" ] ; then OSS_BUILD_CONFIG_REF_BRANCH="d
 if [ -z "${GIT_SERVICE}" ]; then
     if [ -n "${CI_PROJECT_URL}" ]; then INFRASTRUCTURE="internal"; GIT_SERVICE=$(echo "${CI_PROJECT_URL}" | sed 's,/*[^/]\+/*$,,' | sed 's,/*[^/]\+/*$,,'); else INFRASTRUCTURE="local"; GIT_SERVICE="${LOCAL_GIT_SERVICE}"; fi
 fi
-BUILD_SCRIPT_LOC="${GIT_SERVICE}/${GIT_REPO_OWNER}/oss-build/raw/${BUILD_SCRIPT_REF}";
+BUILD_SCRIPT_LOC="${OSS_BUILD_GIT_SERVICE}/${OSS_BUILD_GIT_REPO_OWNER}/oss-build/raw/${BUILD_SCRIPT_REF}";
 BUILD_CONFIG_LOC="${GIT_SERVICE}/${GIT_REPO_OWNER}/oss-${INFRASTRUCTURE}/raw/${OSS_BUILD_CONFIG_REF_BRANCH}"
 echo "INFRASTRUCTURE: ${INFRASTRUCTURE}, BUILD_SCRIPT_LOC: ${BUILD_SCRIPT_LOC}, BUILD_CONFIG_LOC: ${BUILD_CONFIG_LOC}"
 

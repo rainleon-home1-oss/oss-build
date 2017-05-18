@@ -32,12 +32,19 @@ BUILD_SCRIPT_LOC="${OSS_BUILD_GIT_SERVICE}/${OSS_BUILD_GIT_REPO_OWNER}/oss-build
 BUILD_CONFIG_LOC="${GIT_SERVICE}/${GIT_REPO_OWNER}/oss-${INFRASTRUCTURE}/raw/${OSS_BUILD_CONFIG_REF_BRANCH}"
 echo "INFRASTRUCTURE: ${INFRASTRUCTURE}, BUILD_SCRIPT_LOC: ${BUILD_SCRIPT_LOC}, BUILD_CONFIG_LOC: ${BUILD_CONFIG_LOC}"
 
-if [ "internal" == "${INFRASTRUCTURE}" ]; then
+if ([ "internal" == "${INFRASTRUCTURE}" ] || [ "local" == "${INFRASTRUCTURE}" ]) ; then
     # for internal jira
     echo "eval \$(curl -H 'Cache-Control: no-cache' -H \"PRIVATE-TOKEN: \${GIT_SERVICE_TOKEN}\" -s -L ${BUILD_CONFIG_LOC}/src/main/jira/jira-${INFRASTRUCTURE}.sh)"
     eval "$(curl -H 'Cache-Control: no-cache' -H "PRIVATE-TOKEN: ${GIT_SERVICE_TOKEN}" -s -L ${BUILD_CONFIG_LOC}/src/main/jira/jira-${INFRASTRUCTURE}.sh)"
-    # for internal docker auth
-    curl -H 'Cache-Control: no-cache' -H "PRIVATE-TOKEN: ${GIT_SERVICE_TOKEN}" -t utf-8 -s -L -o ~/.docker/config.json ${BUILD_CONFIG_LOC}/src/main/docker/config.json
+    # for internal/local docker auth,if local env has no file will download form oss-${INFRASTRUCTURE}
+    if [ ! -d "${HOME}/.docker/" ]; then mkdir -p "${HOME}/.docker/"; echo "mkdir ${HOME}/.docker/ "; fi
+    if [ ! -f "${HOME}/.docker/config.json" ]; then
+        curl -H 'Cache-Control: no-cache' -H "PRIVATE-TOKEN: ${GIT_SERVICE_TOKEN}" -t utf-8 -s -L -o ${HOME}/.docker/config.json ${BUILD_CONFIG_LOC}/src/main/docker/config.json
+    fi
+    # for internal/local settings-security.xml,if local env has no file will download form oss-${INFRASTRUCTURE}
+    if [ ! -f "${HOME}/.m2/settings-security.xml" ]; then
+        curl -H 'Cache-Control: no-cache' -H "PRIVATE-TOKEN: ${GIT_SERVICE_TOKEN}" -t utf-8 -s -L -o ${HOME}/.m2/settings-security.xml ${BUILD_CONFIG_LOC}/src/main/maven/settings-security.xml
+    fi
 fi
 
 if [ -n "${DOCKERHUB_PASS}" ] && [ -n "${DOCKERHUB_USER}" ]; then

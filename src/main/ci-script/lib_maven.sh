@@ -25,6 +25,9 @@ fi
 if [ -n "${BUILD_JIRA_PROJECTKEY}" ]; then
     export MAVEN_OPTS="${MAVEN_OPTS} -Djira.projectKey=${BUILD_JIRA_PROJECTKEY} -Djira.user=${BUILD_JIRA_USER} -Djira.password=${BUILD_JIRA_PASSWORD}"
 fi
+# override default xml which from github.com ,that you can define your own rule
+if [ -n "${CHECKSTYLE_REF_URL}" ]; then export MAVEN_OPTS="${MAVEN_OPTS} -Dcheckstyle.config.location=${CHECKSTYLE_REF_URL}"; fi
+if [ -n "${PMD_RULE_REF_URL}" ]; then export MAVEN_OPTS="${MAVEN_OPTS} -Dpmd.ruleset.location=${PMD_RULE_REF_URL}"; fi
 
 mvn ${MAVEN_SETTINGS} -version
 EFFECTIVE_POM_FILE="${CI_CACHE}/effective-pom-${COMMIT_ID}.xml"

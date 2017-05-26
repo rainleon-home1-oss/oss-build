@@ -38,11 +38,18 @@ if ([ "internal" == "${INFRASTRUCTURE}" ] || [ "local" == "${INFRASTRUCTURE}" ])
     eval "$(curl -H 'Cache-Control: no-cache' -H "PRIVATE-TOKEN: ${GIT_SERVICE_TOKEN}" -s -L ${BUILD_CONFIG_LOC}/src/main/jira/jira-${INFRASTRUCTURE}.sh)"
     # for internal/local docker auth,if local env has no file will download form oss-${INFRASTRUCTURE}
     if [ ! -d "${HOME}/.docker/" ]; then mkdir -p "${HOME}/.docker/"; echo "mkdir ${HOME}/.docker/ "; fi
-    if [ ! -f "${HOME}/.docker/config.json" ]; then
+
+    file_resp_code=$(curl -H 'Cache-Control: no-cache' -H "PRIVATE-TOKEN: ${GIT_SERVICE_TOKEN}" -t utf-8 -s -L -I ${BUILD_CONFIG_LOC}/src/main/docker/config.json \
+        | grep "HTTP/1.1" | awk '{print $2}' )
+    echo "get docker config.json http respon from ${BUILD_CONFIG_LOC}/src/main/docker/config.json,responsecode=${file_resp_code}"
+    if [ "200"=="$file_resp_code" ];then
         curl -H 'Cache-Control: no-cache' -H "PRIVATE-TOKEN: ${GIT_SERVICE_TOKEN}" -t utf-8 -s -L -o ${HOME}/.docker/config.json ${BUILD_CONFIG_LOC}/src/main/docker/config.json
     fi
-    # for internal/local settings-security.xml,if local env has no file will download form oss-${INFRASTRUCTURE}
-    if [ ! -f "${HOME}/.m2/settings-security.xml" ]; then
+    # for internal/local settings-security.xml,always download form oss-${INFRASTRUCTURE}
+    file_resp_code=$(curl -H 'Cache-Control: no-cache' -H "PRIVATE-TOKEN: ${GIT_SERVICE_TOKEN}" -t utf-8 -s -L -I ${BUILD_CONFIG_LOC}/src/main/maven/settings-security.xml \
+        | grep "HTTP/1.1" | awk '{print $2}' )
+    echo "get maven settings-security.xml http respon from ${BUILD_CONFIG_LOC}/src/main/docker/config.json,responsecode=${file_resp_code}"
+    if [ "200"=="$file_resp_code" ];then
         curl -H 'Cache-Control: no-cache' -H "PRIVATE-TOKEN: ${GIT_SERVICE_TOKEN}" -t utf-8 -s -L -o ${HOME}/.m2/settings-security.xml ${BUILD_CONFIG_LOC}/src/main/maven/settings-security.xml
     fi
 fi

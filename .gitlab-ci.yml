@@ -1,49 +1,43 @@
-before_script:
-  - export OSS_BUILD_REF_BRANCH="develop"
-  - export OSS_BUILD_CONFIG_REF_BRANCH="develop"
-#  - export OSS_BUILD_GIT_SERVICE="https://github.com"
-#  - export OSS_BUILD_GIT_REPO_OWNER="home1-oss"
+#before_script:
+#- export VARIABLE_NAME="value"
 
 stages:
 - test_and_build
 - deploy
 
 on_every_push:
-  stage: test_and_build
-  script:
-  - echo "on_every_push"
-  - bash ci.sh test_and_build
   artifacts:
     expire_in: 1 day
     untracked: true
+  script:
+  - echo "on_every_push"
+  - bash ci.sh test_and_build
+  stage: test_and_build
 
 on_develop_push:
-  stage: deploy
-  script:
-  - echo "on_develop_push"
-  - bash ci.sh publish_snapshot
-  - bash ci.sh publish_maven_site
+  dependencies:
+  - on_every_push
   only:
   - develop
-  dependencies:
-  - on_every_push
+  script:
+  - echo "on_develop_push"
+  - bash ci.sh publish_snapshot publish_maven_site
+  stage: deploy
 
 on_master_push:
-  stage: deploy
-  script:
-  - echo "on_master_push"
-  - bash ci.sh publish_release
-  - bash ci.sh publish_maven_site
-  only:
-  - master
   dependencies:
   - on_every_push
+  only:
+  - master
+  script:
+  - echo "on_master_push"
+  - bash ci.sh publish_release publish_maven_site
+  stage: deploy
 
 on_release_tag:
-  stage: deploy
+  only:
+  - /^release.+$/
   script:
   - echo "on_release_tag"
   - bash ci.sh publish_release_tag
-  only:
-  - /^release.+$/
-
+  stage: deploy

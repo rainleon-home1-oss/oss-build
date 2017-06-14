@@ -17,14 +17,14 @@
         <!--mirror>
             <id>local-nexus-mirror</id>
             <name>local nexus mirror</name>
-            <url>${nexus.local.mirror}</url>
+            <url>${local-nexus.repository}/maven-public/</url>
             <!-mirrorOf>central,spring-libs-release,spring-milestone,spring-libs-snapshot,conjars.org,clojars.org,org.jboss.repository,codehaus-mule-repo,repo.jenkins-ci.org</mirrorOf->
             <mirrorOf>external:*,!github-chshawkn-wagon-maven-plugin</mirrorOf>
         </mirror-->
         <!--mirror>
             <id>internal-nexus-mirror</id>
             <name>internal nexus mirror</name>
-            <url>${internal-nexus.mirror}</url>
+            <url>${internal-nexus.repository}/maven-public/</url>
             <mirrorOf>external:*,!github-chshawkn-wagon-maven-plugin</mirrorOf>
         </mirror-->
     </mirrors>
@@ -36,7 +36,7 @@
         </server>
         <server>
             <id>github</id>
-            <password>${env.GITHUB_GIT_SERVICE_TOKEN}</password>
+            <password>${env.GITHUB_INFRASTRUCTURE_CONF_GIT_TOKEN}</password>
         </server>
         <server>
             <id>github-nexus-releases</id>
@@ -143,7 +143,29 @@
             </properties>
         </profile>
         <profile>
-            <id>github-infrastructure</id>
+            <id>default-internal-sonar-host-url</id>
+            <activation>
+                <property>
+                    <name>!internal-sonar.host.url</name>
+                </property>
+            </activation>
+            <properties>
+                <internal-sonar.host.url>http://sonarqube.internal:9000</internal-sonar.host.url>
+            </properties>
+        </profile>
+        <profile>
+            <id>default-local-sonar-host-url</id>
+            <activation>
+                <property>
+                    <name>!local-sonar.host.url</name>
+                </property>
+            </activation>
+            <properties>
+                <local-sonar.host.url>http://sonarqube.local:9000</local-sonar.host.url>
+            </properties>
+        </profile>
+        <profile>
+            <id>infrastructure-github</id>
             <properties>
                 <sonar.host.url>https://sonarqube.com</sonar.host.url>
             </properties>
@@ -209,7 +231,7 @@
             </pluginRepositories>
         </profile>
         <profile>
-            <id>local-infrastructure</id>
+            <id>infrastructure-local</id>
             <properties>
                 <sonar.host.url>${local-sonar.host.url}</sonar.host.url>
                 <!--sonar.jdbc.url>jdbc:h2:tcp://local-sonarqube/sonar</sonar.jdbc.url>
@@ -219,21 +241,21 @@
                 <repository>
                     <id>local-nexus-releases</id>
                     <name>local nexus releases</name>
-                    <url>${nexus.local.repositories}/maven-releases/</url>
+                    <url>${local-nexus.repository}/maven-releases/</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>false</enabled></snapshots>
                 </repository>
                 <repository>
                     <id>local-nexus-snapshots</id>
                     <name>local nexus snapshots</name>
-                    <url>${nexus.local.repositories}/maven-snapshots/</url>
+                    <url>${local-nexus.repository}/maven-snapshots/</url>
                     <releases><enabled>false</enabled></releases>
                     <snapshots><enabled>true</enabled></snapshots>
                 </repository>
                 <repository>
                     <id>local-nexus-thirdparty</id>
                     <name>local nexus thirdparty</name>
-                    <url>${nexus.local.repositories}/maven-thirdparty/</url>
+                    <url>${local-nexus.repository}/maven-thirdparty/</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>true</enabled></snapshots>
                 </repository>
@@ -242,28 +264,28 @@
                 <pluginRepository>
                     <id>local-nexus-releases</id>
                     <name>local nexus releases</name>
-                    <url>${nexus.local.repositories}/maven-releases/</url>
+                    <url>${local-nexus.repository}/maven-releases/</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>false</enabled></snapshots>
                 </pluginRepository>
                 <pluginRepository>
                     <id>local-nexus-snapshots</id>
                     <name>local nexus snapshots</name>
-                    <url>${nexus.local.repositories}/maven-snapshots/</url>
+                    <url>${local-nexus.repository}/maven-snapshots/</url>
                     <releases><enabled>false</enabled></releases>
                     <snapshots><enabled>true</enabled></snapshots>
                 </pluginRepository>
                 <pluginRepository>
                     <id>local-nexus-thirdparty</id>
                     <name>local nexus thirdparty</name>
-                    <url>${nexus.local.repositories}/maven-thirdparty/</url>
+                    <url>${local-nexus.repository}/maven-thirdparty/</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>true</enabled></snapshots>
                 </pluginRepository>
             </pluginRepositories>
         </profile>
         <profile>
-            <id>internal-infrastructure</id>
+            <id>infrastructure-internal</id>
             <properties>
                 <sonar.host.url>${internal-sonar.host.url}</sonar.host.url>
             </properties>
@@ -271,21 +293,21 @@
                 <repository>
                     <id>internal-nexus-releases</id>
                     <name>internal nexus releases</name>
-                    <url>${internal-nexus.repositories}/releases/</url>
+                    <url>${internal-nexus.repository}/releases/</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>false</enabled></snapshots>
                 </repository>
                 <repository>
                     <id>internal-nexus-snapshots</id>
                     <name>internal nexus snapshots</name>
-                    <url>${internal-nexus.repositories}/snapshots/</url>
+                    <url>${internal-nexus.repository}/snapshots/</url>
                     <releases><enabled>false</enabled></releases>
                     <snapshots><enabled>true</enabled></snapshots>
                 </repository>
                 <repository>
                     <id>internal-nexus-thirdparty</id>
                     <name>internal nexus thirdparty</name>
-                    <url>${internal-nexus.repositories}/thirdparty/</url>
+                    <url>${internal-nexus.repository}/thirdparty/</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>true</enabled></snapshots>
                 </repository>
@@ -294,21 +316,21 @@
                 <pluginRepository>
                     <id>internal-nexus-releases</id>
                     <name>internal nexus releases</name>
-                    <url>${internal-nexus.repositories}/releases/</url>
+                    <url>${internal-nexus.repository}/releases/</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>false</enabled></snapshots>
                 </pluginRepository>
                 <pluginRepository>
                     <id>internal-nexus-snapshots</id>
                     <name>internal nexus snapshots</name>
-                    <url>${internal-nexus.repositories}/snapshots/</url>
+                    <url>${internal-nexus.repository}/snapshots/</url>
                     <releases><enabled>false</enabled></releases>
                     <snapshots><enabled>true</enabled></snapshots>
                 </pluginRepository>
                 <pluginRepository>
                     <id>internal-nexus-thirdparty</id>
                     <name>internal nexus thirdparty</name>
-                    <url>${internal-nexus.repositories}/thirdparty/</url>
+                    <url>${internal-nexus.repository}/thirdparty/</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots><enabled>true</enabled></snapshots>
                 </pluginRepository>

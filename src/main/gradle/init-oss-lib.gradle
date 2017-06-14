@@ -19,10 +19,8 @@ void setRepositories(project, ext) {
   }
 
   if ("github" == "${ext.infrastructure}") {
-    def releasesUrl = System.getenv("NEXUS_RELEASE_DISTRIBUTE_URL")
-    def snapshotsUrl = System.getenv("NEXUS_SNAPSHOT_DISTRIBUTE_URL")
-    ext.repositoryReleases = releasesUrl ? releasesUrl : 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-    ext.repositorySnapshots = snapshotsUrl ? snapshotsUrl : 'https://oss.sonatype.org/content/repositories/snapshots/'
+    ext.repositoryReleases = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+    ext.repositorySnapshots = 'https://oss.sonatype.org/content/repositories/snapshots/'
   } else if (ext.nexusRepositories?.trim()) {
     if ('local'.equals(ext.infrastructure)) {
       ext.repositoryReleases = "${ext.nexusRepositories}/maven-releases/"

@@ -37,10 +37,6 @@
             <name>Yuliang Jin</name>
             <email>zhixiangjin@126.com</email>
         </developer>
-        <developer>
-            <name>Zecheng Zhao</name>
-            <url>https://github.com/sealake</url>
-        </developer>
     </developers>
 
     <issueManagement>
@@ -903,6 +899,28 @@
             </properties>
         </profile>
         <profile>
+            <id>default-internal-nexus-repository</id>
+            <activation>
+                <property>
+                    <name>!internal-nexus.repository</name>
+                </property>
+            </activation>
+            <properties>
+                <internal-nexus.repository>http://nexus.internal/nexus/repository</internal-nexus.repository>
+            </properties>
+        </profile>
+        <profile>
+            <id>default-local-nexus-repository</id>
+            <activation>
+                <property>
+                    <name>!local-nexus.repository</name>
+                </property>
+            </activation>
+            <properties>
+                <local-nexus.repository>http://nexus.local:28081/nexus/repository</local-nexus.repository>
+            </properties>
+        </profile>
+        <profile>
             <id>default-frontend-nodeDownloadRoot</id>
             <activation>
                 <property>
@@ -910,7 +928,8 @@
                 </property>
             </activation>
             <properties>
-                <frontend.nodeDownloadRoot>https://npm.taobao.org/mirrors/node/</frontend.nodeDownloadRoot>
+                <!--frontend.nodeDownloadRoot>https://npm.taobao.org/mirrors/node/</frontend.nodeDownloadRoot-->
+                <frontend.nodeDownloadRoot>https://nodejs.org/dist/</frontend.nodeDownloadRoot>
             </properties>
         </profile>
         <profile>
@@ -921,7 +940,39 @@
                 </property>
             </activation>
             <properties>
-                <frontend.npmDownloadRoot>http://registry.npm.taobao.org/npm/-/</frontend.npmDownloadRoot>
+                <!--frontend.npmDownloadRoot>http://registry.npm.taobao.org/npm/-/</frontend.npmDownloadRoot-->
+                <frontend.npmDownloadRoot>https://registry.npmjs.org/npm/-/</frontend.npmDownloadRoot>
+            </properties>
+        </profile>
+        <!-- set property checkstyle.config.location in MAVEN_OPTS, pom.xml or settings.xml. -->
+        <profile>
+            <id>default-checkstyle-config</id>
+            <activation>
+                <property>
+                    <name>!checkstyle.config.location</name>
+                </property>
+                <!--file>
+                    <exists>${maven.multiModuleProjectDirectory}/src/main/checkstyle/google_checks_6.19.xml</exists>
+                </file-->
+            </activation>
+            <properties>
+                <!--checkstyle.config.location>${maven.multiModuleProjectDirectory}/src/main/checkstyle/google_checks_6.19.xml</checkstyle.config.location-->
+                <checkstyle.config.location>https://raw.githubusercontent.com/home1-oss/oss-build/master/src/main/checkstyle/google_checks_6.19.xml</checkstyle.config.location>
+            </properties>
+        </profile>
+        <profile>
+            <id>default-pmd-ruleset</id>
+            <activation>
+                <property>
+                    <name>!pmd.ruleset.location</name>
+                </property>
+                <!--file>
+                    <exists>${maven.multiModuleProjectDirectory}/src/main/pmd/pmd-ruleset-5.3.5.xml</exists>
+                </file-->
+            </activation>
+            <properties>
+                <!--pmd.ruleset.location>${maven.multiModuleProjectDirectory}/src/main/pmd/pmd-ruleset-5.3.5.xml</pmd.ruleset.location-->
+                <pmd.ruleset.location>https://raw.githubusercontent.com/home1-oss/oss-build/master/src/main/pmd/pmd-ruleset-5.3.5.xml</pmd.ruleset.location>
             </properties>
         </profile>
 
@@ -948,7 +999,7 @@
             </properties>
         </profile>
         <profile>
-            <id>github_infrastructure</id>
+            <id>infrastructure_github</id>
             <activation>
                 <property>
                     <name>infrastructure</name>
@@ -960,23 +1011,24 @@
                 <docker-maven.useConfigFile>true</docker-maven.useConfigFile>
                 <!-- id as in your settings.xml -->
                 <github.global.server>github</github.global.server>
-                <!--github.global.oauth2Token>${env.GITHUB_GIT_SERVICE_TOKEN}</github.global.oauth2Token-->
-                <github.global.oauth2Token>${env.GITHUB_GIT_SERVICE_TOKEN}</github.global.oauth2Token>
+                <!--github.global.oauth2Token>${env.GITHUB_INFRASTRUCTURE_CONF_GIT_TOKEN}</github.global.oauth2Token-->
+                <github.global.oauth2Token>${env.GITHUB_INFRASTRUCTURE_CONF_GIT_TOKEN}</github.global.oauth2Token>
                 <!--<github.site.path>${project.version}</github.site.path>-->
                 <!-- In child projects
                 Do not add url. Let it inherit from parent.
                 <github.site.path>${project.version}/${project.artifactId}</github.site.path>
                 -->
                 <maven.site.deploy.skip>true</maven.site.deploy.skip>
+                <wagon.merge-maven-repos.targetId>github-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
             </properties>
             <distributionManagement>
                 <repository>
                     <id>github-nexus-releases</id>
-                    <url>${env.NEXUS_RELEASE_DISTRIBUTE_URL}</url>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
                 </repository>
                 <snapshotRepository>
                     <id>github-nexus-snapshots</id>
-                    <url>${env.NEXUS_SNAPSHOT_DISTRIBUTE_URL}</url>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
                 </snapshotRepository>
                 <!-- Do mvn site site:stage -DstagingDirectory=/tmp/path first,
                 then manually add/push to the gh-pages branch on GitHub -->
@@ -998,8 +1050,8 @@
                             <path>${project.distributionManagement.site.url}</path>
                             <merge>true</merge>
                             <noJekyll>true</noJekyll>
-                            <repositoryOwner>${env.BUILD_SITE_GITHUB_REPOSITORY_OWNER}</repositoryOwner>
-                            <repositoryName>${env.BUILD_SITE_GITHUB_REPOSITORY_NAME}</repositoryName>
+                            <repositoryName>${env.BUILD_GITHUB_SITE_REPO_NAME}</repositoryName>
+                            <repositoryOwner>${env.BUILD_GITHUB_SITE_REPO_OWNER}</repositoryOwner>
                         </configuration>
                         <executions>
                             <execution>
@@ -1040,36 +1092,7 @@
             </build>
         </profile>
         <profile>
-            <id>local_infrastructure</id>
-            <activation>
-                <property>
-                    <name>infrastructure</name>
-                    <value>local</value>
-                </property>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-                <wagon.merge-maven-repos.target>${nexus.local.repositories}/maven-${build.publish.channel}s</wagon.merge-maven-repos.target>
-                <wagon.merge-maven-repos.targetId>local-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
-                <docker-maven.useConfigFile>false</docker-maven.useConfigFile>
-            </properties>
-            <distributionManagement>
-                <repository>
-                    <id>local-nexus-releases</id>
-                    <url>${nexus.local.repositories}/maven-releases/</url>
-                </repository>
-                <snapshotRepository>
-                    <id>local-nexus-snapshots</id>
-                    <url>${nexus.local.repositories}/maven-snapshots/</url>
-                </snapshotRepository>
-                <site>
-                    <id>local-mvnsite</id>
-                    <url>${local-mvnsite.prefix}/${site.path}</url>
-                </site>
-            </distributionManagement>
-        </profile>
-        <profile>
-            <id>internal_infrastructure</id>
+            <id>infrastructure_internal</id>
             <activation>
                 <property>
                     <name>infrastructure</name>
@@ -1078,23 +1101,53 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <wagon.merge-maven-repos.target>${internal-nexus.repositories}/maven-${build.publish.channel}s</wagon.merge-maven-repos.target>
+                <wagon.merge-maven-repos.target>${internal-nexus.repository}/maven-${build.publish.channel}s</wagon.merge-maven-repos.target>
                 <wagon.merge-maven-repos.targetId>internal-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
                 <docker-maven.useConfigFile>true</docker-maven.useConfigFile>
             </properties>
             <distributionManagement>
                 <repository>
                     <id>internal-nexus-releases</id>
-                    <url>${internal-nexus.repositories}/maven-releases</url>
+                    <url>${internal-nexus.repository}/maven-releases</url>
                 </repository>
                 <snapshotRepository>
                     <id>internal-nexus-snapshots</id>
-                    <url>${internal-nexus.repositories}/maven-snapshots</url>
+                    <url>${internal-nexus.repository}/maven-snapshots</url>
                 </snapshotRepository>
                 <site>
                     <id>internal-mvnsite</id>
                     <!-- scpexe uses privateKey, scp uses password -->
-                    <url>${internal-mvnsite.prefix}/${site.path}</url>
+                    <!-- scpexe://${domain_or_ip}:22/path/to/sites -->
+                    <url>dav:${internal-nexus.repository}/mvnsite/${site.path}</url>
+                </site>
+            </distributionManagement>
+        </profile>
+        <profile>
+            <id>infrastructure_local</id>
+            <activation>
+                <property>
+                    <name>infrastructure</name>
+                    <value>local</value>
+                </property>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <wagon.merge-maven-repos.target>${local-nexus.repository}/maven-${build.publish.channel}s</wagon.merge-maven-repos.target>
+                <wagon.merge-maven-repos.targetId>local-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
+                <docker-maven.useConfigFile>false</docker-maven.useConfigFile>
+            </properties>
+            <distributionManagement>
+                <repository>
+                    <id>local-nexus-releases</id>
+                    <url>${local-nexus.repository}/maven-releases/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>local-nexus-snapshots</id>
+                    <url>${local-nexus.repository}/maven-snapshots/</url>
+                </snapshotRepository>
+                <site>
+                    <id>local-mvnsite</id>
+                    <url>dav:${local-nexus.repository}/mvnsite/${site.path}</url>
                 </site>
             </distributionManagement>
         </profile>
@@ -1430,48 +1483,13 @@
             </build>
         </profile>
 
-        <!-- set property checkstyle.config.location in MAVEN_OPTS, pom.xml or settings.xml. -->
         <profile>
-            <id>local-checkstyle-config</id>
+            <id>skip-docker-plugin-lifecycle-binding-when-publish-deploy-segregation</id>
             <activation>
-                <property>
-                    <name>!checkstyle.config.location</name>
-                </property>
-                <file>
-                    <exists>${maven.multiModuleProjectDirectory}/src/main/checkstyle/google_checks_6.19.xml</exists>
-                </file>
-            </activation>
-            <properties>
-                <checkstyle.config.location>
-                    ${maven.multiModuleProjectDirectory}/src/main/checkstyle/google_checks_6.19.xml
-                </checkstyle.config.location>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>local-pmd-ruleset</id>
-            <activation>
-                <property>
-                    <name>!pmd.ruleset.location</name>
-                </property>
-                <file>
-                    <exists>${maven.multiModuleProjectDirectory}/src/main/pmd/pmd-ruleset-5.3.5.xml</exists>
-                </file>
-            </activation>
-            <properties>
-                <pmd.ruleset.location>
-                    ${maven.multiModuleProjectDirectory}/src/main/pmd/pmd-ruleset-5.3.5.xml
-                </pmd.ruleset.location>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>build-push-segregation-with-docker</id>
-            <activation>
-                <property>
-                    <name>!active_publish_segregation</name>
-                </property>
                 <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>!publish_deploy_segregation</name>
+                </property>
             </activation>
             <build>
                 <pluginManagement>
@@ -1504,11 +1522,11 @@
         <profile>
             <id>publish-deploy-segregation-with-wagon</id>
             <activation>
+                <activeByDefault>false</activeByDefault>
                 <property>
-                    <name>active_publish_segregation</name>
+                    <name>publish_deploy_segregation</name>
                     <value>true</value>
                 </property>
-                <activeByDefault>false</activeByDefault>
             </activation>
             <pluginRepositories>
                 <pluginRepository>
@@ -2063,7 +2081,7 @@
             <properties>
                 <!-- id as in your settings.xml -->
                 <github.global.server>github</github.global.server>
-                <github.global.oauth2Token>${env.GITHUB_GIT_SERVICE_TOKEN}</github.global.oauth2Token>
+                <github.global.oauth2Token>${env.GITHUB_INFRASTRUCTURE_CONF_GIT_TOKEN}</github.global.oauth2Token>
                 <github.site.path>${project.version}</github.site.path>
                 <!-- In child projects
                 Do not add url. Let it inherit from parent.

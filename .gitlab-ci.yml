@@ -1,5 +1,7 @@
-#before_script:
-#- export VARIABLE_NAME="value"
+before_script:
+- INFRASTRUCTURE=internal
+- LIB_CI_SCRIPT=https://github.com/home1-oss/oss-build/raw/develop/src/main/ci-script/lib_ci.sh
+- ORIGIN_REPO_SLUG=home1-oss/oss-build
 
 stages:
 - test_and_build
@@ -10,7 +12,6 @@ on_every_push:
     expire_in: 1 day
     untracked: true
   script:
-  - echo "on_every_push"
   - bash ci.sh test_and_build
   stage: test_and_build
 
@@ -20,7 +21,6 @@ on_develop_push:
   only:
   - develop
   script:
-  - echo "on_develop_push"
   - bash ci.sh publish_snapshot publish_maven_site
   stage: deploy
 
@@ -30,7 +30,6 @@ on_master_push:
   only:
   - master
   script:
-  - echo "on_master_push"
   - bash ci.sh publish_release publish_maven_site
   stage: deploy
 
@@ -38,6 +37,5 @@ on_release_tag:
   only:
   - /^release.+$/
   script:
-  - echo "on_release_tag"
   - bash ci.sh publish_release_tag
   stage: deploy

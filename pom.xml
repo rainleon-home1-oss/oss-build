@@ -899,28 +899,6 @@
             </properties>
         </profile>
         <profile>
-            <id>default-internal-nexus-repository</id>
-            <activation>
-                <property>
-                    <name>!internal-nexus.repository</name>
-                </property>
-            </activation>
-            <properties>
-                <internal-nexus.repository>http://nexus.internal/nexus/repository</internal-nexus.repository>
-            </properties>
-        </profile>
-        <profile>
-            <id>default-local-nexus-repository</id>
-            <activation>
-                <property>
-                    <name>!local-nexus.repository</name>
-                </property>
-            </activation>
-            <properties>
-                <local-nexus.repository>http://nexus.local:28081/nexus/repository</local-nexus.repository>
-            </properties>
-        </profile>
-        <profile>
             <id>default-frontend-nodeDownloadRoot</id>
             <activation>
                 <property>

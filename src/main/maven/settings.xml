@@ -235,7 +235,7 @@
             <properties>
                 <sonar.host.url>${local-sonar.host.url}</sonar.host.url>
                 <!--sonar.jdbc.url>jdbc:h2:tcp://local-sonarqube/sonar</sonar.jdbc.url>
-                <sonar.jdbc.url>jdbc:postgresql://local-postgresql:5432/sonar</sonar.jdbc.url-->
+                <sonar.jdbc.url>jdbc:postgresql://postgresql.local:5432/sonar</sonar.jdbc.url-->
             </properties>
             <repositories>
                 <repository>

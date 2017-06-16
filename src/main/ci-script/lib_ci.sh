@@ -98,18 +98,6 @@ if [ -f "${HOME}/.bashrc" ]; then source "${HOME}/.bashrc"; fi
 echo "PWD: $(pwd)"
 echo "USER: $(whoami)"
 
-# LOGGING_LEVEL_ is for spring-boot projects
-export LOGGING_LEVEL_="INFO"
-echo "LOGGING_LEVEL_: ${LOGGING_LEVEL_}"
-
-if [ -z "${BUILD_COMMIT_ID}" ]; then BUILD_COMMIT_ID="$(git_commit_id)"; fi
-echo "BUILD_COMMIT_ID: ${BUILD_COMMIT_ID}"
-if [ -z "${BUILD_CACHE}" ]; then BUILD_CACHE="${HOME}/.ci-cache/${BUILD_COMMIT_ID}"; fi
-echo "BUILD_CACHE: ${BUILD_CACHE}"
-mkdir -p ${BUILD_CACHE}
-FILTER_SCRIPT=$(filter_script "${BUILD_CACHE}/filter")
-echo "FILTER_SCRIPT: ${FILTER_SCRIPT}"
-
 if [ -z "${GITHUB_DOCKER_REGISTRY}" ]; then GITHUB_DOCKER_REGISTRY="home1oss"; fi
 if [ -z "${GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX="https://github.com"; fi
 echo "GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX: ${GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX}"
@@ -119,15 +107,19 @@ if [ -z "${INTERNAL_DOCKER_REGISTRY}" ]; then INTERNAL_DOCKER_REGISTRY="registry
 echo "INTERNAL_DOCKER_REGISTRY: ${INTERNAL_DOCKER_REGISTRY}"
 if [ -z "${INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX="http://gitlab.internal"; fi
 echo "INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX: ${INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX}"
-if [ -z "${LIB_CI_SCRIPT}" ]; then LIB_CI_SCRIPT="https://github.com/home1-oss/oss-build/raw/master/src/main/ci-script/lib_ci.sh"; fi
+if [ -z "${INTERNAL_NEXUS}" ]; then INTERNAL_NEXUS="http://nexus.internal/nexus/repository"; fi
+echo "INTERNAL_NEXUS: ${INTERNAL_NEXUS}"
+if [ -z "${LIB_CI_SCRIPT}" ]; then LIB_CI_SCRIPT="https://github.com/home1-oss/oss-build/raw/develop/src/main/ci-script/lib_ci.sh"; fi
 echo "LIB_CI_SCRIPT: ${LIB_CI_SCRIPT}"
 # Use lib_common.sh at same location as lib_ci.sh
 if [ -z "${LIB_COMMON_SCRIPT}" ]; then LIB_COMMON_SCRIPT="$(dirname ${LIB_CI_SCRIPT})/lib_common.sh"; fi
 echo "LIB_COMMON_SCRIPT: ${LIB_COMMON_SCRIPT}"
 if [ -z "${LOCAL_DOCKER_REGISTRY}" ]; then LOCAL_DOCKER_REGISTRY="registry.docker.local"; fi
 echo "LOCAL_DOCKER_REGISTRY: ${LOCAL_DOCKER_REGISTRY}"
-if [ -z "${LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX="http://gitlab.local"; fi
+if [ -z "${LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX="http://gitlab.local:10080"; fi
 echo "LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX: ${LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX}"
+if [ -z "${LOCAL_NEXUS}" ]; then LOCAL_NEXUS="http://nexus.local:28081/nexus/repository"; fi
+echo "LOCAL_NEXUS: ${LOCAL_NEXUS}"
 
 # INFRASTRUCTURE specific values.
 DOCKER_REGISTRY_VAR="$(echo ${INFRASTRUCTURE} | tr '[:lower:]' '[:upper:]')_DOCKER_REGISTRY"
@@ -136,15 +128,27 @@ if [ -n "$BASH_VERSION" ]; then DOCKER_REGISTRY="${!DOCKER_REGISTRY_VAR}"; elif 
 #if [ -n "$BASH_VERSION" ]; then BUILD_FILESERVER="${!FILESERVER_VAR}"; elif [ -n "${ZSH_VERSION}" ]; then BUILD_FILESERVER="${(P)FILESERVER_VAR}"; else echo "unsupported ${SHELL}"; fi
 if [ -z "${INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then INFRASTRUCTURE_CONF_GIT_PREFIX="$(infrastructure_conf_git_prefix)"; fi
 echo "INFRASTRUCTURE_CONF_GIT_PREFIX: ${INFRASTRUCTURE_CONF_GIT_PREFIX}"
-INFRASTRUCTURE_CONF_GIT_TOKEN_VAR="$(echo ${INFRASTRUCTURE} | tr '[:lower:]' '[:upper:]')_INFRASTRUCTURE_CONF_GIT_TOKEN"
-if [ -n "$BASH_VERSION" ]; then INFRASTRUCTURE_CONF_GIT_TOKEN="${!INFRASTRUCTURE_CONF_GIT_TOKEN_VAR}"; elif [ -n "${ZSH_VERSION}" ]; then INFRASTRUCTURE_CONF_GIT_TOKEN="${(P)INFRASTRUCTURE_CONF_GIT_TOKEN_VAR}"; else echo "unsupported ${SHELL}"; fi
+#INFRASTRUCTURE_CONF_GIT_TOKEN_VAR="$(echo ${INFRASTRUCTURE} | tr '[:lower:]' '[:upper:]')_INFRASTRUCTURE_CONF_GIT_TOKEN"
+#if [ -n "$BASH_VERSION" ]; then INFRASTRUCTURE_CONF_GIT_TOKEN="${!INFRASTRUCTURE_CONF_GIT_TOKEN_VAR}"; elif [ -n "${ZSH_VERSION}" ]; then INFRASTRUCTURE_CONF_GIT_TOKEN="${(P)INFRASTRUCTURE_CONF_GIT_TOKEN_VAR}"; else echo "unsupported ${SHELL}"; fi
 if [ -z "${INFRASTRUCTURE_CONF_GIT_TOKEN}" ]; then echo "INFRASTRUCTURE_CONF_GIT_TOKEN not set, exit."; exit 1; else echo "INFRASTRUCTURE_CONF_GIT_TOKEN: *secret*"; fi
 
-INFRASTRUCTURE_CONF_LOC="${INFRASTRUCTURE_CONF_GIT_PREFIX}/home1-oss/oss-${INFRASTRUCTURE}/raw/master"
+INFRASTRUCTURE_CONF_LOC="${INFRASTRUCTURE_CONF_GIT_PREFIX}/home1-oss/oss-${INFRASTRUCTURE}/raw/develop"
 echo "INFRASTRUCTURE_CONF_LOC: ${INFRASTRUCTURE_CONF_LOC}"
 
-echo "eval \$(curl -H 'Cache-Control: no-cache' -s -L ${LIB_COMMON_SCRIPT})"
-eval "$(curl -H 'Cache-Control: no-cache' -s -L ${LIB_COMMON_SCRIPT})"
+echo "eval \$(curl -H 'Cache-Control: no-cache' -L -s ${LIB_COMMON_SCRIPT})"
+eval "$(curl -H 'Cache-Control: no-cache' -L -s ${LIB_COMMON_SCRIPT})"
+
+# LOGGING_LEVEL_ is for spring-boot projects
+export LOGGING_LEVEL_="INFO"
+echo "LOGGING_LEVEL_: ${LOGGING_LEVEL_}"
+
+if [ -z "${BUILD_COMMIT_ID}" ]; then BUILD_COMMIT_ID="$(git_commit_id)"; fi
+echo "BUILD_COMMIT_ID: ${BUILD_COMMIT_ID}"
+if [ -z "${BUILD_CACHE}" ]; then BUILD_CACHE="${HOME}/.oss/tmp/${BUILD_COMMIT_ID}"; fi
+echo "BUILD_CACHE: ${BUILD_CACHE}"
+mkdir -p ${BUILD_CACHE}
+FILTER_SCRIPT=$(filter_script "${BUILD_CACHE}/filter")
+echo "FILTER_SCRIPT: ${FILTER_SCRIPT}"
 ### OSS CI CONTEXT VARIABLES END
 
 ### Load lib scripts
@@ -153,10 +157,14 @@ set -e
 if [ ! -d "${HOME}/.docker/" ]; then echo "mkdir ${HOME}/.docker/ "; mkdir -p "${HOME}/.docker/"; fi
 
 # Not all infrastructure has this file
-curl_suffix="-H 'Cache-Control: no-cache' -H 'PRIVATE-TOKEN: ${INFRASTRUCTURE_CONF_GIT_TOKEN}' -t utf-8 -s -L -I ${INFRASTRUCTURE_CONF_LOC}/src/main/docker/config.json"
-curl_response=$(curl --write-out %{http_code} --silent --output /dev/null ${curl_suffix})
-echo "curl ${curl_suffix} status: ${curl_response}"
-if [ "200" == "${curl_response}" ];then curl -o ${HOME}/.docker/config.json ${curl_suffix}; fi
+curl_hidden="-H \"PRIVATE-TOKEN: \${INFRASTRUCTURE_CONF_GIT_TOKEN}\" -H 'Cache-Control: no-cache' -L -s -t utf-8 ${INFRASTRUCTURE_CONF_LOC}/src/main/docker/config.json"
+echo "Test whether remote file exists: curl -I -o /dev/null -s -w \"%{http_code}\" ${curl_hidden} | tail -n1"
+curl_response=$(curl -I -o /dev/null -s -w "%{http_code}" -H "PRIVATE-TOKEN: ${INFRASTRUCTURE_CONF_GIT_TOKEN}" -H 'Cache-Control: no-cache' -L -s -t utf-8 ${INFRASTRUCTURE_CONF_LOC}/src/main/docker/config.json | tail -n1) || echo "error reading remote file."
+echo "curl_response: ${curl_response}"
+if [ "200" == "${curl_response}" ]; then
+    echo "Download file: curl -o ${HOME}/.docker/config.json ${curl_hidden} > /dev/null"
+    curl -o ${HOME}/.docker/config.json -H "PRIVATE-TOKEN: ${INFRASTRUCTURE_CONF_GIT_TOKEN}" -H 'Cache-Control: no-cache' -L -s -t utf-8 ${INFRASTRUCTURE_CONF_LOC}/src/main/docker/config.json > /dev/null
+fi
 
 if [ -n "${DOCKERHUB_PASS}" ] && [ -n "${DOCKERHUB_USER}" ]; then
     docker login -p="${DOCKERHUB_PASS}" -u="${DOCKERHUB_USER}" https://registry-1.docker.io/v1/
@@ -244,10 +252,14 @@ maven_publish_maven_site(){
 }
 
 # Not all infrastructure has this file
-curl_suffix="-H 'Cache-Control: no-cache' -H 'PRIVATE-TOKEN: ${INFRASTRUCTURE_CONF_GIT_TOKEN}' -t utf-8 -s -L -I ${INFRASTRUCTURE_CONF_LOC}/src/main/maven/settings-security.xml"
-curl_response=$(curl --write-out %{http_code} --silent --output /dev/null ${curl_suffix})
-echo "curl ${curl_suffix}, status: ${curl_response}"
-if [ "200" == "${curl_response}" ];then curl -o ${HOME}/.m2/settings-security.xml ${curl_suffix}; fi
+curl_hidden="-H \"PRIVATE-TOKEN: \${INFRASTRUCTURE_CONF_GIT_TOKEN}\" -H 'Cache-Control: no-cache' -L -s -t utf-8 ${INFRASTRUCTURE_CONF_LOC}/src/main/maven/settings-security.xml"
+echo "Test whether remote file exists: curl -I -o /dev/null -s -w \"%{http_code}\" ${curl_hidden} | tail -n1"
+curl_response=$(curl -I -o /dev/null -s -w "%{http_code}" -H "PRIVATE-TOKEN: ${INFRASTRUCTURE_CONF_GIT_TOKEN}" -H 'Cache-Control: no-cache' -L -s -t utf-8 ${INFRASTRUCTURE_CONF_LOC}/src/main/maven/settings-security.xml | tail -n1) || echo "error reading remote file."
+echo "curl_response: ${curl_response}"
+if [ "200" == "${curl_response}" ]; then
+    echo "Download file: curl -o ${HOME}/.m2/settings-security.xml ${curl_hidden} > /dev/null"
+    curl -o ${HOME}/.m2/settings-security.xml -H "PRIVATE-TOKEN: ${INFRASTRUCTURE_CONF_GIT_TOKEN}" -H 'Cache-Control: no-cache' -L -s -t utf-8 ${INFRASTRUCTURE_CONF_LOC}/src/main/maven/settings-security.xml > /dev/null
+fi
 
 if [ -z "${BUILD_REF_NAME}" ]; then BUILD_REF_NAME="$(ref_name)"; fi
 echo "BUILD_REF_NAME: ${BUILD_REF_NAME}"
@@ -405,7 +417,7 @@ export GRADLE_PROPERTIES="${GRADLE_PROPERTIES} -Psettings=${MAVEN_SETTINGS_FILE}
 if [ -n "${MAVEN_SETTINGS_SECURITY_FILE}" ]; then
   export GRADLE_PROPERTIES="${GRADLE_PROPERTIES} -Psettings.security=${MAVEN_SETTINGS_SECURITY_FILE}"
 fi
-echo "gradle_properties: ${GRADLE_PROPERTIES}"
+echo "GRADLE_PROPERTIES: ${GRADLE_PROPERTIES}"
 
 gradle ${GRADLE_PROPERTIES} -version
 # <<<<<<<<<< ---------- lib_gradle ---------- <<<<<<<<<<
@@ -452,36 +464,45 @@ IS_ON_ORIGIN_REPO="false"
 if ([ "${CURRENT_REPO_SLUG}" == "${ORIGIN_REPO_SLUG}" ] && [ "pull_request" != "${TRAVIS_EVENT_TYPE}" ]); then IS_ON_ORIGIN_REPO="true"; fi
 echo "IS_ON_ORIGIN_REPO: ${IS_ON_ORIGIN_REPO}"
 
-## home1-oss && not pr trigger will on condition
-#if [ "true" == "${IS_ON_ORIGIN_REPO}" ]; then
-#    case "${BUILD_REF_NAME}" in
-#        "develop")
-#            $@
-#            ;;
-#        release*)
-#            if [ "analysis" == "${1}" ]; then
-#                echo "skip analysis as not at develop branch"
-#            else
-#                $@
-#            fi
-#            ;;
-#        feature*|hotfix*|"master"|*)
-#            echo "execute test_and_build only, ref_name=${BUILD_REF_NAME}"
-#            if [ "${1}" == "test_and_build" ]; then
-#                $@
-#            fi
-#            ;;
-#    esac
-#else
-#    # the fork project only trigger test_and_build
-#    if [ "${1}" == "test_and_build" ]; then
-#        $@
-#    fi
-#fi
 
-# config repo, home1-oss
-#if [ "${1}" != "test_and_build" ] && ([ "${GIT_REPO_OWNER}" != "home1-oss" ] || [ "pull_request" == "${TRAVIS_EVENT_TYPE}" ]); then
-#    echo "skip deploy/publish on forked repo or which trigger by pull request "
-#else
-#    $@
-#fi
+# arguments: is_on_origin_repo, build_ref_name, cmd
+function whether_perform_command() {
+    local is_on_origin_repo="${1}"
+    local build_ref_name="${2}"
+    local cmd="${3}"
+
+    if [ "true" == "${is_on_origin_repo}" ]; then
+        case "${build_ref_name}" in
+        "develop")
+            return
+            ;;
+        release*)
+            if [ "${cmd}" != *analysis ]; then
+                return
+            fi
+            ;;
+        feature*|hotfix*|"master"|*)
+            if [ "${cmd}" == *test_and_build ]; then
+                return
+            fi
+            ;;
+        esac
+    elif [[ "${cmd}" == *test_and_build ]]; then
+        return
+    fi
+
+    echo "Skip ${cmd} on is_on_origin_repo: '${is_on_origin_repo}' ref_name '${build_ref_name}'"
+    false
+}
+
+COMMANDS_WILL_PERFORM=()
+COMMANDS_SKIPPED=()
+for element in $@; do [[ $(whether_perform_command "${IS_ON_ORIGIN_REPO}" "${BUILD_REF_NAME}" "${element}") ]] && COMMANDS_WILL_PERFORM+=("${element}") || COMMANDS_SKIPPED+=("${element}"); done
+COMMANDS=$(echo $@)
+COMMANDS_WILL_PERFORM=$(echo "${COMMANDS_WILL_PERFORM[@]}")
+COMMANDS_SKIPPED=$(echo "${COMMANDS_SKIPPED[@]}")
+printf "COMMANDS: %s\n" "${COMMANDS}"
+printf "COMMANDS_WILL_PERFORM: %s\n" "${COMMANDS_WILL_PERFORM}"
+printf "COMMANDS_SKIPPED: %s\n" "${COMMANDS_SKIPPED}"
+
+${COMMANDS_WILL_PERFORM}

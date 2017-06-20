@@ -1,4 +1,22 @@
 
+### OSS CI INFRASTRUCTURE VARIABLES BEGIN
+if [ -z "${GITHUB_DOCKER_REGISTRY}" ]; then GITHUB_DOCKER_REGISTRY="home1oss"; fi
+if [ -z "${GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX="https://github.com"; fi
+echo "GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX: ${GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX}"
+if [ -z "${INTERNAL_DOCKER_REGISTRY}" ]; then INTERNAL_DOCKER_REGISTRY="registry.docker.internal"; fi
+echo "INTERNAL_DOCKER_REGISTRY: ${INTERNAL_DOCKER_REGISTRY}"
+if [ -z "${INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX="http://gitlab.internal"; fi
+echo "INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX: ${INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX}"
+if [ -z "${INTERNAL_NEXUS}" ]; then INTERNAL_NEXUS="http://nexus.internal/nexus/repository"; fi
+echo "INTERNAL_NEXUS: ${INTERNAL_NEXUS}"
+if [ -z "${LOCAL_DOCKER_REGISTRY}" ]; then LOCAL_DOCKER_REGISTRY="registry.docker.local"; fi
+echo "LOCAL_DOCKER_REGISTRY: ${LOCAL_DOCKER_REGISTRY}"
+if [ -z "${LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX="http://gitlab.local:10080"; fi
+echo "LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX: ${LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX}"
+if [ -z "${LOCAL_NEXUS}" ]; then LOCAL_NEXUS="http://nexus.local:28081/nexus/repository"; fi
+echo "LOCAL_NEXUS: ${LOCAL_NEXUS}"
+### OSS CI INFRASTRUCTURE VARIABLES END
+
 ### FUNCTIONS BEGIN
 # arguments: target_file
 function filter_script() {
@@ -22,7 +40,11 @@ EOL
 # arguments:
 function infrastructure() {
     if [ -n "${CI_PROJECT_URL}" ]; then
-        echo "internal"
+        if [[ "${CI_PROJECT_URL}" == "${INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX}"* ]]; then
+            echo "internal"
+        else
+            echo "local"
+        fi
     elif [ -n "${TRAVIS_REPO_SLUG}" ]; then
         echo "github"
     else
@@ -93,33 +115,18 @@ function ref_name() {
 ### DECRYPT SOME FILES BEGIN
 ### DECRYPT SOME FILES END
 
-### OSS CI CONTEXT VARIABLES BEGIN
 if [ -f "${HOME}/.bashrc" ]; then source "${HOME}/.bashrc"; fi
 echo "PWD: $(pwd)"
 echo "USER: $(whoami)"
 
-if [ -z "${GITHUB_DOCKER_REGISTRY}" ]; then GITHUB_DOCKER_REGISTRY="home1oss"; fi
-if [ -z "${GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX="https://github.com"; fi
-echo "GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX: ${GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX}"
+### OSS CI CONTEXT VARIABLES BEGIN
 if [ -z "${INFRASTRUCTURE}" ]; then INFRASTRUCTURE="$(infrastructure)"; fi
 echo "INFRASTRUCTURE: ${INFRASTRUCTURE}"
-if [ -z "${INTERNAL_DOCKER_REGISTRY}" ]; then INTERNAL_DOCKER_REGISTRY="registry.docker.internal"; fi
-echo "INTERNAL_DOCKER_REGISTRY: ${INTERNAL_DOCKER_REGISTRY}"
-if [ -z "${INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX="http://gitlab.internal"; fi
-echo "INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX: ${INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX}"
-if [ -z "${INTERNAL_NEXUS}" ]; then INTERNAL_NEXUS="http://nexus.internal/nexus/repository"; fi
-echo "INTERNAL_NEXUS: ${INTERNAL_NEXUS}"
 if [ -z "${LIB_CI_SCRIPT}" ]; then LIB_CI_SCRIPT="https://github.com/home1-oss/oss-build/raw/develop/src/main/ci-script/lib_ci.sh"; fi
 echo "LIB_CI_SCRIPT: ${LIB_CI_SCRIPT}"
 # Use lib_common.sh at same location as lib_ci.sh
 if [ -z "${LIB_COMMON_SCRIPT}" ]; then LIB_COMMON_SCRIPT="$(dirname ${LIB_CI_SCRIPT})/lib_common.sh"; fi
 echo "LIB_COMMON_SCRIPT: ${LIB_COMMON_SCRIPT}"
-if [ -z "${LOCAL_DOCKER_REGISTRY}" ]; then LOCAL_DOCKER_REGISTRY="registry.docker.local"; fi
-echo "LOCAL_DOCKER_REGISTRY: ${LOCAL_DOCKER_REGISTRY}"
-if [ -z "${LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX="http://gitlab.local:10080"; fi
-echo "LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX: ${LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX}"
-if [ -z "${LOCAL_NEXUS}" ]; then LOCAL_NEXUS="http://nexus.local:28081/nexus/repository"; fi
-echo "LOCAL_NEXUS: ${LOCAL_NEXUS}"
 
 # INFRASTRUCTURE specific values.
 DOCKER_REGISTRY_VAR="$(echo ${INFRASTRUCTURE} | tr '[:lower:]' '[:upper:]')_DOCKER_REGISTRY"

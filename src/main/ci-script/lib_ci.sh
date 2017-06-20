@@ -27,12 +27,13 @@ cat >${target_file} <<EOL
 # reduce log avoid travis 4MB limit
 while IFS='' read -r LINE
 do
-    echo \"${LINE}\" \
+    echo "\${LINE}" \
         | grep -v 'Downloading:' \
         | grep -Ev '^Generating .+\.html\.\.\.'
 done
 EOL
 
+    chmod 755 ${target_file}
     echo "${target_file}"
 }
 
@@ -478,21 +479,22 @@ function whether_perform_command() {
     local build_ref_name="${2}"
     local cmd="${3}"
 
+    echo "Test command: '${cmd}'"
     if [ "true" == "${is_on_origin_repo}" ]; then
         case "${build_ref_name}" in
-        "develop")
-            return
-            ;;
-        release*)
-            if [ "${cmd}" != *analysis ]; then
+            "develop")
                 return
-            fi
-            ;;
-        feature*|hotfix*|"master"|*)
-            if [ "${cmd}" == *test_and_build ]; then
-                return
-            fi
-            ;;
+                ;;
+            release*)
+                if [ "${cmd}" != *analysis ]; then
+                    return
+                fi
+                ;;
+            feature*|hotfix*|"master"|*)
+                if [ "${cmd}" == *test_and_build ]; then
+                    return
+                fi
+                ;;
         esac
     elif [[ "${cmd}" == *test_and_build ]]; then
         return
@@ -512,6 +514,6 @@ printf "COMMANDS: %s\n" "${COMMANDS}"
 printf "COMMANDS_WILL_PERFORM: %s\n" "${COMMANDS_WILL_PERFORM}"
 printf "COMMANDS_SKIPPED: %s\n" "${COMMANDS_SKIPPED}"
 
-echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< execute '${COMMANDS_WILL_PERFORM}' <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> execute '${COMMANDS_WILL_PERFORM}' >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 ${COMMANDS_WILL_PERFORM}
 echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< done '${COMMANDS_WILL_PERFORM}' <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"

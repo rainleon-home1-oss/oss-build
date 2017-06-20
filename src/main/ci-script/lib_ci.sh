@@ -512,4 +512,6 @@ printf "COMMANDS: %s\n" "${COMMANDS}"
 printf "COMMANDS_WILL_PERFORM: %s\n" "${COMMANDS_WILL_PERFORM}"
 printf "COMMANDS_SKIPPED: %s\n" "${COMMANDS_SKIPPED}"
 
+echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< execute ${COMMANDS_WILL_PERFORM} <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 ${COMMANDS_WILL_PERFORM}
+echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< done ${COMMANDS_WILL_PERFORM} <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"

@@ -197,7 +197,7 @@ function git_credentials_user() {
 }
 
 function git_repo_slug() {
-    echo $(git remote show origin -n | ruby -ne 'puts /^\s*Fetch.*:(.*).git/.match($_)[1] rescue nil')
+    echo $(git remote show origin -n | ruby -ne 'puts /^\s*Fetch.*:(\d+\/)?(.*).git/.match($_)[2] rescue nil')
 }
 
 # usage: host_ip_address=$(eval "$(hostip_expression)")

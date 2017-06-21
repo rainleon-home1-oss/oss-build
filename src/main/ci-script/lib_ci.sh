@@ -254,15 +254,11 @@ maven_publish_maven_site(){
     maven_skip_clean_and_tests
 
     # deploy first, then build site
-    if [ "true" == "${BUILD_SITE}" ]; then
-        if [ "github" == "${INFRASTRUCTURE}" ]; then
-            # -X enable debug logging for Maven to avoid build timeout
-            mvn ${MAVEN_SETTINGS} site site-deploy | ${FILTER_SCRIPT}
-        else
-            echo yes | mvn ${MAVEN_SETTINGS} site:site site:stage site:stage-deploy | ${FILTER_SCRIPT}
-        fi
+    if [ "github" == "${INFRASTRUCTURE}" ]; then
+        # -X enable debug logging for Maven to avoid build timeout
+        mvn ${MAVEN_SETTINGS} site site-deploy | ${FILTER_SCRIPT}
     else
-        echo "skip publish_maven_site"
+        echo yes | mvn ${MAVEN_SETTINGS} site:site site:stage site:stage-deploy | ${FILTER_SCRIPT}
     fi
 }
 
@@ -487,7 +483,11 @@ function whether_perform_command() {
     local cmd="${3}"
 
     echo "Test command: '${cmd}'"
-    if [ "true" == "${is_on_origin_repo}" ]; then
+    if [ "${cmd}" == *publish_maven_site ] && [ "${BUILD_SITE}" == "true" ]; then
+         return
+    elif [[ "${cmd}" == *test_and_build ]]; then
+        return
+    elif [ "true" == "${is_on_origin_repo}" ]; then
         case "${build_ref_name}" in
             "develop")
                 return
@@ -503,8 +503,6 @@ function whether_perform_command() {
                 fi
                 ;;
         esac
-    elif [[ "${cmd}" == *test_and_build ]]; then
-        return
     fi
 
     echo "Skip ${cmd} on is_on_origin_repo: '${is_on_origin_repo}' ref_name '${build_ref_name}'"
@@ -520,12 +518,9 @@ for element in $@; do
         COMMANDS_SKIPPED+=("${element}")
     fi
 done
-COMMANDS=$(echo $@)
-COMMANDS_WILL_PERFORM=$(echo "${COMMANDS_WILL_PERFORM[@]}")
-COMMANDS_SKIPPED=$(echo "${COMMANDS_SKIPPED[@]}")
-printf "COMMANDS: %s\n" "${COMMANDS}"
-printf "COMMANDS_WILL_PERFORM: %s\n" "${COMMANDS_WILL_PERFORM}"
-printf "COMMANDS_SKIPPED: %s\n" "${COMMANDS_SKIPPED}"
+printf "COMMANDS: '%s'\n" "$@"
+printf "COMMANDS_WILL_PERFORM: '%s'\n" "${COMMANDS_WILL_PERFORM[@]}"
+printf "COMMANDS_SKIPPED: '%s'\n" "${COMMANDS_SKIPPED[@]}"
 
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> execute '${COMMANDS_WILL_PERFORM}' >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 for command in ${COMMANDS_WILL_PERFORM[@]}; do

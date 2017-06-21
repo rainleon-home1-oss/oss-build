@@ -34,6 +34,8 @@ on_master_push:
   stage: deploy
 
 on_release_tag:
+  dependencies:
+  - on_every_push
   only:
   - /^release.+$/
   script:

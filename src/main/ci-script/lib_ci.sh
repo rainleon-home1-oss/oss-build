@@ -529,6 +529,8 @@ printf "COMMANDS_SKIPPED: %s\n" "${COMMANDS_SKIPPED}"
 
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> execute '${COMMANDS_WILL_PERFORM}' >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 for command in ${COMMANDS_WILL_PERFORM[@]}; do
+    echo ">>>>>>>>>>>>>>>>>>>> execute '${command}' >>>>>>>>>>>>>>>>>>>>"
     ${command}
+    echo "<<<<<<<<<<<<<<<<<<<< done '${command}' <<<<<<<<<<<<<<<<<<<<"
 done
 echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< done '${COMMANDS_WILL_PERFORM}' <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"

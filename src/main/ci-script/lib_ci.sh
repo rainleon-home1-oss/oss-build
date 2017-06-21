@@ -375,7 +375,7 @@ if [ -n "${BUILD_JIRA_PROJECTKEY}" ]; then
 fi
 # public sonarqube config, see: https://sonarcloud.io
 if [ "github" == "${INFRASTRUCTURE}" ]; then
-    export MAVEN_OPTS="${MAVEN_OPTS} -Dsonar.organization=${SONAR_ORGANIZATION} -Dsonar.login=${SONAR_LOGIN}"
+    export MAVEN_OPTS="${MAVEN_OPTS} -Dsonar.organization=${SONAR_ORGANIZATION} -Dsonar.login=${SONAR_LOGIN_TOKEN}"
 fi
 
 mvn ${MAVEN_SETTINGS} -version

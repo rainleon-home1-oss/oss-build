@@ -80,7 +80,7 @@ function get_linux_release() {
         debian*)
             case ${os_name} in
                 ubuntu)
-                    if version_gt ${os_version} "14.04"; then
+                    if version_gt ${os_version} "14.00"; then
                         PLATFORM=debian
                     else
                         supported_os_help ${os_label}

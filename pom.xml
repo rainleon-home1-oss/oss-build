@@ -2076,7 +2076,7 @@
                             <path>${github.site.path}</path>
                             <merge>true</merge>
                             <noJekyll>true</noJekyll>
-                            <repositoryOwner>${env.GITHUB_USERNAME}</repositoryOwner>
+                            <repositoryOwner>${env.GITHUB_SITE_REPO_OWNER}</repositoryOwner>
                         </configuration>
                         <executions>
                             <execution>

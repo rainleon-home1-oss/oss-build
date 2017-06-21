@@ -197,7 +197,11 @@ function git_credentials_user() {
 }
 
 function git_repo_slug() {
-    echo $(git remote show origin -n | ruby -ne 'puts /^\s*Fetch.*:(\d+\/)?(.*).git/.match($_)[2] rescue nil')
+    # test cases
+    # echo "Fetch URL: http://user@pass:gitservice.org:20080/owner/repo.git" | ruby -ne 'puts /^\s*Fetch.*(:|\/){1}([^\/]+\/[^\/]+).git/.match($_)[2] rescue nil'
+    # echo "Fetch URL: Fetch URL: git@github.com:home1-oss/oss-build.git" | ruby -ne 'puts /^\s*Fetch.*(:|\/){1}([^\/]+\/[^\/]+).git/.match($_)[2] rescue nil'
+    # echo "Fetch URL: https://github.com/owner/repo.git" | ruby -ne 'puts /^\s*Fetch.*(:|\/){1}([^\/]+\/[^\/]+).git/.match($_)[2] rescue nil'
+    echo $(git remote show origin -n | ruby -ne 'puts /^\s*Fetch.*(:|\/){1}([^\/]+\/[^\/]+).git/.match($_)[2] rescue nil')
 }
 
 # usage: host_ip_address=$(eval "$(hostip_expression)")

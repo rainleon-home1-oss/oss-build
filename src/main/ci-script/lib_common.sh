@@ -80,7 +80,7 @@ function get_linux_release() {
         debian*)
             case ${os_name} in
                 ubuntu)
-                    if version_gt ${os_version} "14.10"; then
+                    if version_gt ${os_version} "14.04"; then
                         PLATFORM=debian
                     else
                         supported_os_help ${os_label}
@@ -246,7 +246,7 @@ function supported_os_help() {
     echo -e "not support platform: ${cur_platform} \n
     supported os platforms as below:
         mac os >= 10.11
-        ubuntu >= 16.04
+        ubuntu >= 14.04
         centos >= 7
 
     we'll support more os platforms in future...
@@ -279,7 +279,7 @@ function version_gt() {
     fi
 }
 
-case "$OSTYPE" in
+case "${OSTYPE}" in
     darwin*)
         PLATFORM=mac
         ;;

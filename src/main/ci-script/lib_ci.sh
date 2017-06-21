@@ -1,4 +1,11 @@
 
+echo "CI_BUILD_REF_NAME: ${CI_BUILD_REF_NAME}"
+echo "CI_COMMIT_REF_NAME: ${CI_COMMIT_REF_NAME}"
+echo "CI_PROJECT_URL: ${CI_PROJECT_URL}"
+echo "TRAVIS_BRANCH: ${TRAVIS_BRANCH}"
+echo "TRAVIS_EVENT_TYPE: ${TRAVIS_EVENT_TYPE}"
+echo "TRAVIS_REPO_SLUG: ${TRAVIS_REPO_SLUG}"
+
 ### OSS CI INFRASTRUCTURE VARIABLES BEGIN
 if [ -z "${GITHUB_DOCKER_REGISTRY}" ]; then GITHUB_DOCKER_REGISTRY="home1oss"; fi
 if [ -z "${GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then GITHUB_INFRASTRUCTURE_CONF_GIT_PREFIX="https://github.com"; fi
@@ -41,7 +48,7 @@ EOL
 # arguments:
 function infrastructure() {
     if [ -n "${CI_PROJECT_URL}" ]; then
-        if [[ "${CI_PROJECT_URL}" == "${INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX}"* ]]; then
+        if [[ "${CI_PROJECT_URL}" == ${INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX}* ]]; then
             echo "internal"
         else
             echo "local"

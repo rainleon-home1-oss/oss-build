@@ -1,6 +1,6 @@
 before_script:
-- export INFRASTRUCTURE=internal
-- export LIB_CI_SCRIPT=https://github.com/home1-oss/oss-build/raw/develop/src/main/ci-script/lib_ci.sh
+#- export LIB_CI_SCRIPT=https://github.com/home1-oss/oss-build/raw/develop/src/main/ci-script/lib_ci.sh
+- export LIB_CI_SCRIPT=http://gitlab.local:10080/home1-oss/oss-build/raw/develop/src/main/ci-script/lib_ci.sh
 - export ORIGIN_REPO_SLUG=home1-oss/oss-build
 
 stages:

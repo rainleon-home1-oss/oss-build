@@ -278,13 +278,21 @@ if [ -z "${BUILD_PUBLISH_CHANNEL}" ]; then BUILD_PUBLISH_CHANNEL="$(publish_chan
 echo "BUILD_PUBLISH_CHANNEL: ${BUILD_PUBLISH_CHANNEL}"
 
 if [ -z "${BUILD_DEPENDENCY_CHECK}" ]; then BUILD_DEPENDENCY_CHECK="false"; fi
+echo "BUILD_DEPENDENCY_CHECK: ${BUILD_DEPENDENCY_CHECK}"
 if [ -z "${BUILD_GITHUB_SITE_REPO_NAME}" ]; then BUILD_GITHUB_SITE_REPO_NAME="home1-oss"; fi
+echo "BUILD_GITHUB_SITE_REPO_NAME: ${BUILD_GITHUB_SITE_REPO_NAME}"
 if [ -z "${BUILD_GITHUB_SITE_REPO_OWNER}" ]; then BUILD_GITHUB_SITE_REPO_OWNER="home1-oss"; fi
+echo "BUILD_GITHUB_SITE_REPO_OWNER: ${BUILD_GITHUB_SITE_REPO_OWNER}"
 if [ -z "${BUILD_PUBLISH_DEPLOY_SEGREGATION}" ]; then BUILD_PUBLISH_DEPLOY_SEGREGATION="false"; fi
+echo "BUILD_PUBLISH_DEPLOY_SEGREGATION: ${BUILD_PUBLISH_DEPLOY_SEGREGATION}"
 if [ -z "${BUILD_SITE}" ]; then BUILD_SITE="false"; fi
+echo "BUILD_SITE: ${BUILD_SITE}"
 if [ -z "${BUILD_SITE_PATH_PREFIX}" ]; then BUILD_SITE_PATH_PREFIX="oss"; fi
+echo "BUILD_SITE_PATH_PREFIX: ${BUILD_SITE_PATH_PREFIX}"
 if [ -z "${BUILD_TEST_FAILURE_IGNORE}" ]; then BUILD_TEST_FAILURE_IGNORE="false"; fi
+echo "BUILD_TEST_FAILURE_IGNORE: ${BUILD_TEST_FAILURE_IGNORE}"
 if [ -z "${BUILD_TEST_SKIP}" ]; then BUILD_TEST_SKIP="false"; fi
+echo "BUILD_TEST_SKIP: ${BUILD_TEST_SKIP}"
 
 # 配置maven选项
 # frontend.nodeDownloadRoot
@@ -319,12 +327,13 @@ export MAVEN_OPTS="${MAVEN_OPTS} -Dsite=${BUILD_SITE} -Dsite.path=${BUILD_SITE_P
 export MAVEN_OPTS="${MAVEN_OPTS} -Duser.language=zh -Duser.region=CN -Duser.timezone=Asia/Shanghai"
 
 # 本地Repo临时地址，后续发布会从此目录deploy到远程仓库
-DEPLOY_LOCAL_REPO_IF_NEED="${HOME}/local-deploy/${BUILD_COMMIT_ID}"
-if [ ! -d "${DEPLOY_LOCAL_REPO_IF_NEED}" ]; then mkdir -p ${DEPLOY_LOCAL_REPO_IF_NEED}; fi
+LOCAL_DEPLOY_REPO="${HOME}/.oss/local-deploy/${BUILD_COMMIT_ID}"
+echo "LOCAL_DEPLOY_REPO: ${LOCAL_DEPLOY_REPO}"
+if [ ! -d "${LOCAL_DEPLOY_REPO}" ]; then mkdir -p ${LOCAL_DEPLOY_REPO}; fi
 
 if [ "true" == "${BUILD_PUBLISH_DEPLOY_SEGREGATION}" ]; then
     export MAVEN_OPTS="${MAVEN_OPTS} -Dpublish_deploy_segregation=true"
-    export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.source.filepath=${DEPLOY_LOCAL_REPO_IF_NEED} -DaltDeploymentRepository=repo::default::file://${DEPLOY_LOCAL_REPO_IF_NEED}"
+    export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.source.filepath=${LOCAL_DEPLOY_REPO} -DaltDeploymentRepository=repo::default::file://${LOCAL_DEPLOY_REPO}"
     if [ "github" == "${INFRASTRUCTURE}" ]; then
         export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.target=https://oss.sonatype.org/content/repositories/snapshots"
         export MAVEN_OPTS="${MAVEN_OPTS} -Dwagon.merge-maven-repos.target=https://oss.sonatype.org/service/local/staging/deploy/maven2"
@@ -482,9 +491,10 @@ function whether_perform_command() {
     local build_ref_name="${2}"
     local cmd="${3}"
 
-    echo "Test command: '${cmd}'"
-    if [ "${cmd}" == *publish_maven_site ] && [ "${BUILD_SITE}" == "true" ]; then
-         return
+    if [[ "${cmd}" == *publish_maven_site ]]; then
+        if [ "true" == "${BUILD_SITE}" ]; then
+            return
+        fi
     elif [[ "${cmd}" == *test_and_build ]]; then
         return
     elif [ "true" == "${is_on_origin_repo}" ]; then
@@ -493,34 +503,35 @@ function whether_perform_command() {
                 return
                 ;;
             release*)
-                if [ "${cmd}" != *analysis ]; then
+                if [[ "${cmd}" != *analysis ]]; then
                     return
                 fi
                 ;;
             feature*|hotfix*|"master"|*)
-                if [ "${cmd}" == *test_and_build ]; then
+                if [[ "${cmd}" == *test_and_build ]]; then
                     return
                 fi
                 ;;
         esac
     fi
 
-    echo "Skip ${cmd} on is_on_origin_repo: '${is_on_origin_repo}' ref_name '${build_ref_name}'"
     false
 }
 
-COMMANDS_WILL_PERFORM=()
 COMMANDS_SKIPPED=()
+COMMANDS_WILL_PERFORM=()
 for element in $@; do
-    if [[ $(whether_perform_command "${IS_ON_ORIGIN_REPO}" "${BUILD_REF_NAME}" "${element}") ]]; then
+    echo "Test command: '${element}'"
+    if whether_perform_command "${IS_ON_ORIGIN_REPO}" "${BUILD_REF_NAME}" "${element}"; then
         COMMANDS_WILL_PERFORM+=("${element}")
     else
+        echo "Skip ${element} on IS_ON_ORIGIN_REPO: '${IS_ON_ORIGIN_REPO}' BUILD_REF_NAME: '${BUILD_REF_NAME}'"
         COMMANDS_SKIPPED+=("${element}")
     fi
 done
-printf "COMMANDS: '%s'\n" "$@"
-printf "COMMANDS_WILL_PERFORM: '%s'\n" "${COMMANDS_WILL_PERFORM[@]}"
-printf "COMMANDS_SKIPPED: '%s'\n" "${COMMANDS_SKIPPED[@]}"
+echo "COMMANDS: '$@'"
+echo "COMMANDS_SKIPPED: '${COMMANDS_SKIPPED[@]}'"
+echo "COMMANDS_WILL_PERFORM: '${COMMANDS_WILL_PERFORM[@]}'"
 
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> execute '${COMMANDS_WILL_PERFORM}' >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 for command in ${COMMANDS_WILL_PERFORM[@]}; do

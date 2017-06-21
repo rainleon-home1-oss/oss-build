@@ -513,7 +513,13 @@ function whether_perform_command() {
 
 COMMANDS_WILL_PERFORM=()
 COMMANDS_SKIPPED=()
-for element in $@; do [[ $(whether_perform_command "${IS_ON_ORIGIN_REPO}" "${BUILD_REF_NAME}" "${element}") ]] && COMMANDS_WILL_PERFORM+=("${element}") || COMMANDS_SKIPPED+=("${element}"); done
+for element in $@; do
+    if [[ $(whether_perform_command "${IS_ON_ORIGIN_REPO}" "${BUILD_REF_NAME}" "${element}") ]]; then
+        COMMANDS_WILL_PERFORM+=("${element}")
+    else
+        COMMANDS_SKIPPED+=("${element}")
+    fi
+done
 COMMANDS=$(echo $@)
 COMMANDS_WILL_PERFORM=$(echo "${COMMANDS_WILL_PERFORM[@]}")
 COMMANDS_SKIPPED=$(echo "${COMMANDS_SKIPPED[@]}")
@@ -522,5 +528,7 @@ printf "COMMANDS_WILL_PERFORM: %s\n" "${COMMANDS_WILL_PERFORM}"
 printf "COMMANDS_SKIPPED: %s\n" "${COMMANDS_SKIPPED}"
 
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> execute '${COMMANDS_WILL_PERFORM}' >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-${COMMANDS_WILL_PERFORM}
+for command in ${COMMANDS_WILL_PERFORM[@]}; do
+    ${command}
+done
 echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< done '${COMMANDS_WILL_PERFORM}' <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"

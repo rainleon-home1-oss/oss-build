@@ -535,10 +535,10 @@ echo "COMMANDS: '$@'"
 echo "COMMANDS_SKIPPED: '${COMMANDS_SKIPPED[@]}'"
 echo "COMMANDS_WILL_PERFORM: '${COMMANDS_WILL_PERFORM[@]}'"
 
-echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> execute '${COMMANDS_WILL_PERFORM}' >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> execute '${COMMANDS_WILL_PERFORM[@]}' >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 for command in ${COMMANDS_WILL_PERFORM[@]}; do
     echo ">>>>>>>>>>>>>>>>>>>> execute '${command}' >>>>>>>>>>>>>>>>>>>>"
     ${command}
     echo "<<<<<<<<<<<<<<<<<<<< done '${command}' <<<<<<<<<<<<<<<<<<<<"
 done
-echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< done '${COMMANDS_WILL_PERFORM}' <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< done '${COMMANDS_WILL_PERFORM[@]}' <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"

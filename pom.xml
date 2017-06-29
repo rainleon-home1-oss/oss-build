@@ -926,12 +926,12 @@
         <profile>
             <id>default-checkstyle-config</id>
             <activation>
-                <property>
-                    <name>!checkstyle.config.location</name>
-                </property>
                 <!--file>
                     <exists>${maven.multiModuleProjectDirectory}/src/main/checkstyle/google_checks_6.19.xml</exists>
                 </file-->
+                <property>
+                    <name>!checkstyle.config.location</name>
+                </property>
             </activation>
             <properties>
                 <!--checkstyle.config.location>${maven.multiModuleProjectDirectory}/src/main/checkstyle/google_checks_6.19.xml</checkstyle.config.location-->
@@ -941,12 +941,12 @@
         <profile>
             <id>default-pmd-ruleset</id>
             <activation>
-                <property>
-                    <name>!pmd.ruleset.location</name>
-                </property>
                 <!--file>
                     <exists>${maven.multiModuleProjectDirectory}/src/main/pmd/pmd-ruleset-5.3.5.xml</exists>
                 </file-->
+                <property>
+                    <name>!pmd.ruleset.location</name>
+                </property>
             </activation>
             <properties>
                 <!--pmd.ruleset.location>${maven.multiModuleProjectDirectory}/src/main/pmd/pmd-ruleset-5.3.5.xml</pmd.ruleset.location-->

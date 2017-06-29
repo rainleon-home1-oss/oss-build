@@ -228,8 +228,8 @@ maven_test_and_build() {
     fi
 }
 
-maven_publish_snapshot() {
-    echo "maven_publish_snapshot"
+maven_publish_artifact() {
+    echo "maven_publish_artifact"
     maven_skip_clean_and_tests
 
     #mvn ${MAVEN_SETTINGS} help:active-profiles
@@ -240,19 +240,8 @@ maven_publish_snapshot() {
     fi
 }
 
-maven_publish_release() {
-    echo "maven_publish_release"
-    maven_skip_clean_and_tests
-
-    if [ "true" == "${BUILD_PUBLISH_DEPLOY_SEGREGATION}" ]; then
-        mvn ${MAVEN_SETTINGS} org.codehaus.mojo:wagon-maven-plugin:merge-maven-repos@deploy-merge-maven-repos docker:build docker:push | ${FILTER_SCRIPT}
-    else
-        mvn ${MAVEN_SETTINGS} deploy | ${FILTER_SCRIPT}
-    fi
-}
-
-maven_publish_maven_site(){
-    echo "maven_publish_maven_site"
+maven_publish_site(){
+    echo "maven_publish_site"
     maven_skip_clean_and_tests
 
     # deploy first, then build site
@@ -410,16 +399,12 @@ gradle_test_and_build() {
     fi
 }
 
-gradle_publish_snapshot() {
+gradle_publish() {
     gradle ${GRADLE_PROPERTIES} uploadArchives -x test
 }
 
-gradle_publish_release() {
-    gradle ${GRADLE_PROPERTIES} uploadArchives -x test
-}
-
-gradle_publish_maven_site(){
-    echo "gradle can't publish_maven_site"
+gradle_publish_site(){
+    echo "gradle can't publish_site"
 }
 
 if [ -n "${GRADLE_INIT_SCRIPT}" ]; then
@@ -455,25 +440,15 @@ test_and_build() {
     if [ -f build.gradle ]; then gradle_test_and_build; fi
 }
 
-publish_snapshot() {
-    echo "publish_snapshot @ $(pwd)";
-    if [ -f pom.xml ]; then maven_publish_snapshot; fi
-    if [ -f build.gradle ]; then gradle_publish_snapshot; fi
+publish_artifact() {
+    echo "publish @ $(pwd)";
+    if [ -f pom.xml ]; then maven_publish_artifact; fi
+    if [ -f build.gradle ]; then gradle_publish; fi
 }
 
-publish_release() {
-    echo "publish_release @ $(pwd)";
-    if [ -f pom.xml ]; then maven_publish_release; fi
-    if [ -f build.gradle ]; then gradle_publish_release; fi
-}
-
-publish_maven_site(){
-    echo "publish_maven_site @ $(pwd)";
-    if [ -f pom.xml ]; then maven_publish_maven_site; fi
-}
-
-publish_release_tag() {
-    echo "publish_release_tag @ $(pwd)";
+publish_site(){
+    echo "publish_site @ $(pwd)";
+    if [ -f pom.xml ]; then maven_publish_site; fi
 }
 
 # main
@@ -493,7 +468,7 @@ function whether_perform_command() {
     local build_ref_name="${2}"
     local cmd="${3}"
 
-    if [[ "${cmd}" == *publish_maven_site ]]; then
+    if [[ "${cmd}" == *publish_site ]]; then
         if [ "true" == "${BUILD_SITE}" ]; then
             return
         fi

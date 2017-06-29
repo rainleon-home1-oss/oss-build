@@ -21,6 +21,7 @@ branches:
 cache:
   directories:
   - "$HOME/.cache"
+  - "$HOME/.gradle"
   - "$HOME/.m2"
   - "$HOME/.sonar/cache"
 

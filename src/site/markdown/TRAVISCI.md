@@ -9,6 +9,9 @@
     gem update --system
     gem install travis -v 1.8.8 --no-rdoc --no-ri
     travis version
+    
+
+`travis login` or `travis login --github-token $GITHUB_INFRASTRUCTURE_CONF_GIT_TOKEN`
 
 ## Deploying to Maven Repositories from Tavis CI
 
@@ -19,7 +22,7 @@
 * see: [Publishing a Maven Site to GitHub Pages with Travis-CI](https://blog.lanyonm.org/articles/2015/12/19/publish-maven-site-github-pages-travis-ci.html)
 
 
-    travis encrypt GITHUB_GIT_SERVICE_TOKEN="${GITHUB_GIT_SERVICE_TOKEN}" --add env.global
+    travis encrypt GITHUB_INFRASTRUCTURE_CONF_GIT_TOKEN="${GITHUB_INFRASTRUCTURE_CONF_GIT_TOKEN}" --add env.global
 
 ## Environment variables
 
@@ -27,22 +30,20 @@ see: [Environment variables](https://docs.travis-ci.com/user/environment-variabl
 
 Variables in travis repo settings:
 
-|name                    | usage                | note                                                      |
-|------------------------|:--------------------:|:---------------------------------------------------------:|
-|GITHUB_USERNAME         | for github maven site| Display value in build log                                |
-|GITHUB_GIT_SERVICE_TOKEN| for github maven site| Not display value in build log                            |
-|                        |                      |                                                           |
-|MAVEN_CENTRAL_USER      | for deploy artifact  | Do not set on forked repo, Not display value in build log |
-|MAVEN_CENTRAL_PASS      | for deploy artifact  | Do not set on forked repo, Not display value in build log |
+|name                                | usage                                          | note                           |
+|------------------------------------|:----------------------------------------------:|:------------------------------:|
+|GITHUB_SITE_REPO_OWNER              | for github maven site                          | Display value in build log     |
+|GITHUB_INFRASTRUCTURE_CONF_GIT_TOKEN| for github maven site and config fetch         | Not display value in build log |
+|                                   |                      |                                                           |
+|MAVEN_CENTRAL_USER                 | for deploy artifact  | Do not set on forked repo, Not display value in build log |
+|MAVEN_CENTRAL_PASS                 | for deploy artifact  | Do not set on forked repo, Not display value in build log |
 
 ## Note
 
     env:
       global:
-      # refer ci-script and config from repo version ,ex master/develop/v1.0.8
-      - OSS_BUILD_REF_BRANCH=develop
-      # adapt with gitlab-ci
-      - CI_BUILD_REF_NAME=$TRAVIS_BRANCH
+      # ci-script and infrastructure config ref, ex master/develop/v1.0.8
+      - LIB_CI_SCRIPT=https://github.com/home1-oss/oss-build/raw/master/src/main/ci-script/lib_ci.sh
       # or delete /etc/mavenrc
       - MAVEN_SKIP_RC=true
     # Skipping the Installation Step
@@ -57,7 +58,7 @@ Variables in travis repo settings:
 
     deploy:
       provider: releases
-      api_key: $GITHUB_GIT_SERVICE_TOKEN
+      api_key: $GITHUB_INFRASTRUCTURE_CONF_GIT_TOKEN
       file: "target/oss-configlint-${PROJECT_MAVEN_VERSION}.jar"
       skip_cleanup: true
       on:

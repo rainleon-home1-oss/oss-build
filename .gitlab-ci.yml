@@ -4,16 +4,6 @@ before_script:
 - export LIB_CI_SCRIPT=http://gitlab.local:10080/home1-oss/oss-build/raw/master/src/main/ci-script/lib_ci.sh
 - export ORIGIN_REPO_SLUG=home1-oss/oss-build
 
-stages:
-- analysis
-- test_and_build
-- deploy
-
-sonar:
-  stage: analysis
-  script:
-  - bash ci.sh analysis
-
 on_develop_push:
   dependencies:
   - on_every_push
@@ -51,3 +41,13 @@ on_release_push:
   script:
   - bash ci.sh publish_artifact publish_site
   stage: deploy
+
+sonar:
+  stage: analysis
+  script:
+  - bash ci.sh analysis
+
+stages:
+- analysis
+- test_and_build
+- deploy

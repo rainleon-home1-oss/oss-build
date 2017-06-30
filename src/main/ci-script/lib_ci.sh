@@ -93,6 +93,9 @@ function publish_channel() {
         "develop")
             echo "snapshot"
             ;;
+        "master")
+            echo "release"
+            ;;
         release*)
             echo "release"
             ;;

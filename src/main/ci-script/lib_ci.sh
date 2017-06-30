@@ -265,7 +265,7 @@ fi
 
 if [ -z "${BUILD_REF_NAME}" ]; then BUILD_REF_NAME="$(ref_name)"; fi
 echo "BUILD_REF_NAME: ${BUILD_REF_NAME}"
-if [ -z "${BUILD_PUBLISH_CHANNEL}" ]; then BUILD_PUBLISH_CHANNEL="$(publish_channel)"; fi
+if [ -z "${BUILD_PUBLISH_CHANNEL}" ]; then BUILD_PUBLISH_CHANNEL=$(publish_channel "${BUILD_REF_NAME}"); fi
 echo "BUILD_PUBLISH_CHANNEL: ${BUILD_PUBLISH_CHANNEL}"
 
 if [ -z "${BUILD_DEPENDENCY_CHECK}" ]; then BUILD_DEPENDENCY_CHECK="false"; fi

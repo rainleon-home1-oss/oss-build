@@ -133,7 +133,7 @@ echo "USER: $(whoami)"
 ### OSS CI CONTEXT VARIABLES BEGIN
 if [ -z "${INFRASTRUCTURE}" ]; then INFRASTRUCTURE="$(infrastructure)"; fi
 echo "INFRASTRUCTURE: ${INFRASTRUCTURE}"
-if [ -z "${LIB_CI_SCRIPT}" ]; then LIB_CI_SCRIPT="https://github.com/home1-oss/oss-build/raw/develop/src/main/ci-script/lib_ci.sh"; fi
+if [ -z "${LIB_CI_SCRIPT}" ]; then LIB_CI_SCRIPT="https://github.com/home1-oss/oss-build/raw/master/src/main/ci-script/lib_ci.sh"; fi
 echo "LIB_CI_SCRIPT: ${LIB_CI_SCRIPT}"
 # Use lib_common.sh at same location as lib_ci.sh
 if [ -z "${LIB_COMMON_SCRIPT}" ]; then LIB_COMMON_SCRIPT="$(dirname ${LIB_CI_SCRIPT})/lib_common.sh"; fi
@@ -152,7 +152,7 @@ if [ -z "${INFRASTRUCTURE_CONF_GIT_TOKEN}" ]; then
 fi
 if [ -z "${INFRASTRUCTURE_CONF_GIT_TOKEN}" ]; then echo "INFRASTRUCTURE_CONF_GIT_TOKEN not set, exit."; exit 1; else echo "INFRASTRUCTURE_CONF_GIT_TOKEN: *secret*"; fi
 
-INFRASTRUCTURE_CONF_LOC="${INFRASTRUCTURE_CONF_GIT_PREFIX}/home1-oss/oss-${INFRASTRUCTURE}/raw/develop"
+INFRASTRUCTURE_CONF_LOC="${INFRASTRUCTURE_CONF_GIT_PREFIX}/home1-oss/oss-${INFRASTRUCTURE}/raw/master"
 echo "INFRASTRUCTURE_CONF_LOC: ${INFRASTRUCTURE_CONF_LOC}"
 
 echo "eval \$(curl -H 'Cache-Control: no-cache' -L -s ${LIB_COMMON_SCRIPT})"

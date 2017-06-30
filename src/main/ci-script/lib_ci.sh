@@ -93,6 +93,9 @@ function publish_channel() {
         "develop")
             echo "snapshot"
             ;;
+        "master")
+            echo "release"
+            ;;
         release*)
             echo "release"
             ;;
@@ -130,7 +133,7 @@ echo "USER: $(whoami)"
 ### OSS CI CONTEXT VARIABLES BEGIN
 if [ -z "${INFRASTRUCTURE}" ]; then INFRASTRUCTURE="$(infrastructure)"; fi
 echo "INFRASTRUCTURE: ${INFRASTRUCTURE}"
-if [ -z "${LIB_CI_SCRIPT}" ]; then LIB_CI_SCRIPT="https://github.com/home1-oss/oss-build/raw/develop/src/main/ci-script/lib_ci.sh"; fi
+if [ -z "${LIB_CI_SCRIPT}" ]; then LIB_CI_SCRIPT="https://github.com/home1-oss/oss-build/raw/master/src/main/ci-script/lib_ci.sh"; fi
 echo "LIB_CI_SCRIPT: ${LIB_CI_SCRIPT}"
 # Use lib_common.sh at same location as lib_ci.sh
 if [ -z "${LIB_COMMON_SCRIPT}" ]; then LIB_COMMON_SCRIPT="$(dirname ${LIB_CI_SCRIPT})/lib_common.sh"; fi
@@ -149,7 +152,7 @@ if [ -z "${INFRASTRUCTURE_CONF_GIT_TOKEN}" ]; then
 fi
 if [ -z "${INFRASTRUCTURE_CONF_GIT_TOKEN}" ]; then echo "INFRASTRUCTURE_CONF_GIT_TOKEN not set, exit."; exit 1; else echo "INFRASTRUCTURE_CONF_GIT_TOKEN: *secret*"; fi
 
-INFRASTRUCTURE_CONF_LOC="${INFRASTRUCTURE_CONF_GIT_PREFIX}/home1-oss/oss-${INFRASTRUCTURE}/raw/develop"
+INFRASTRUCTURE_CONF_LOC="${INFRASTRUCTURE_CONF_GIT_PREFIX}/home1-oss/oss-${INFRASTRUCTURE}/raw/master"
 echo "INFRASTRUCTURE_CONF_LOC: ${INFRASTRUCTURE_CONF_LOC}"
 
 echo "eval \$(curl -H 'Cache-Control: no-cache' -L -s ${LIB_COMMON_SCRIPT})"
@@ -228,8 +231,8 @@ maven_test_and_build() {
     fi
 }
 
-maven_publish_snapshot() {
-    echo "maven_publish_snapshot"
+maven_publish_artifact() {
+    echo "maven_publish_artifact"
     maven_skip_clean_and_tests
 
     #mvn ${MAVEN_SETTINGS} help:active-profiles
@@ -240,19 +243,8 @@ maven_publish_snapshot() {
     fi
 }
 
-maven_publish_release() {
-    echo "maven_publish_release"
-    maven_skip_clean_and_tests
-
-    if [ "true" == "${BUILD_PUBLISH_DEPLOY_SEGREGATION}" ]; then
-        mvn ${MAVEN_SETTINGS} org.codehaus.mojo:wagon-maven-plugin:merge-maven-repos@deploy-merge-maven-repos docker:build docker:push | ${FILTER_SCRIPT}
-    else
-        mvn ${MAVEN_SETTINGS} deploy | ${FILTER_SCRIPT}
-    fi
-}
-
-maven_publish_maven_site(){
-    echo "maven_publish_maven_site"
+maven_publish_site(){
+    echo "maven_publish_site"
     maven_skip_clean_and_tests
 
     # deploy first, then build site
@@ -276,15 +268,17 @@ fi
 
 if [ -z "${BUILD_REF_NAME}" ]; then BUILD_REF_NAME="$(ref_name)"; fi
 echo "BUILD_REF_NAME: ${BUILD_REF_NAME}"
-if [ -z "${BUILD_PUBLISH_CHANNEL}" ]; then BUILD_PUBLISH_CHANNEL="$(publish_channel)"; fi
+if [ -z "${BUILD_PUBLISH_CHANNEL}" ]; then BUILD_PUBLISH_CHANNEL=$(publish_channel "${BUILD_REF_NAME}"); fi
 echo "BUILD_PUBLISH_CHANNEL: ${BUILD_PUBLISH_CHANNEL}"
 
 if [ -z "${BUILD_DEPENDENCY_CHECK}" ]; then BUILD_DEPENDENCY_CHECK="false"; fi
 echo "BUILD_DEPENDENCY_CHECK: ${BUILD_DEPENDENCY_CHECK}"
 if [ -z "${BUILD_GITHUB_SITE_REPO_NAME}" ]; then BUILD_GITHUB_SITE_REPO_NAME="home1-oss"; fi
 echo "BUILD_GITHUB_SITE_REPO_NAME: ${BUILD_GITHUB_SITE_REPO_NAME}"
+export BUILD_GITHUB_SITE_REPO_NAME
 if [ -z "${BUILD_GITHUB_SITE_REPO_OWNER}" ]; then BUILD_GITHUB_SITE_REPO_OWNER="home1-oss"; fi
 echo "BUILD_GITHUB_SITE_REPO_OWNER: ${BUILD_GITHUB_SITE_REPO_OWNER}"
+export BUILD_GITHUB_SITE_REPO_OWNER
 if [ -z "${BUILD_PUBLISH_DEPLOY_SEGREGATION}" ]; then BUILD_PUBLISH_DEPLOY_SEGREGATION="false"; fi
 echo "BUILD_PUBLISH_DEPLOY_SEGREGATION: ${BUILD_PUBLISH_DEPLOY_SEGREGATION}"
 if [ -z "${BUILD_SITE}" ]; then BUILD_SITE="false"; fi
@@ -410,16 +404,12 @@ gradle_test_and_build() {
     fi
 }
 
-gradle_publish_snapshot() {
+gradle_publish() {
     gradle ${GRADLE_PROPERTIES} uploadArchives -x test
 }
 
-gradle_publish_release() {
-    gradle ${GRADLE_PROPERTIES} uploadArchives -x test
-}
-
-gradle_publish_maven_site(){
-    echo "gradle can't publish_maven_site"
+gradle_publish_site(){
+    echo "gradle can't publish_site"
 }
 
 if [ -n "${GRADLE_INIT_SCRIPT}" ]; then
@@ -455,25 +445,15 @@ test_and_build() {
     if [ -f build.gradle ]; then gradle_test_and_build; fi
 }
 
-publish_snapshot() {
-    echo "publish_snapshot @ $(pwd)";
-    if [ -f pom.xml ]; then maven_publish_snapshot; fi
-    if [ -f build.gradle ]; then gradle_publish_snapshot; fi
+publish_artifact() {
+    echo "publish @ $(pwd)";
+    if [ -f pom.xml ]; then maven_publish_artifact; fi
+    if [ -f build.gradle ]; then gradle_publish; fi
 }
 
-publish_release() {
-    echo "publish_release @ $(pwd)";
-    if [ -f pom.xml ]; then maven_publish_release; fi
-    if [ -f build.gradle ]; then gradle_publish_release; fi
-}
-
-publish_maven_site(){
-    echo "publish_maven_site @ $(pwd)";
-    if [ -f pom.xml ]; then maven_publish_maven_site; fi
-}
-
-publish_release_tag() {
-    echo "publish_release_tag @ $(pwd)";
+publish_site(){
+    echo "publish_site @ $(pwd)";
+    if [ -f pom.xml ]; then maven_publish_site; fi
 }
 
 # main
@@ -493,7 +473,7 @@ function whether_perform_command() {
     local build_ref_name="${2}"
     local cmd="${3}"
 
-    if [[ "${cmd}" == *publish_maven_site ]]; then
+    if [[ "${cmd}" == *publish_site ]]; then
         if [ "true" == "${BUILD_SITE}" ]; then
             return
         fi

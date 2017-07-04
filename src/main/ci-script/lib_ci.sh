@@ -402,7 +402,7 @@ gradle_analysis() {
 }
 
 gradle_clean() {
-    gradle ${GRADLE_PROPERTIES} clean
+    gradle --stacktrace ${GRADLE_PROPERTIES} clean
 }
 
 gradle_test_and_build() {
@@ -410,14 +410,14 @@ gradle_test_and_build() {
     if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ] && [ -n "${GPG_PASSPHRASE}" ]; then signArchives="signArchives"; fi
     if [ -f secring.gpg ] && [ -z "${GPG_KEYID}" ]; then echo "GPG_KEYID not set, use 'gpg --list-keys' to find it (Rightmost 8 hex). exit."; exit 1; fi
     if [ "true" == "${BUILD_TEST_SKIP}" ]; then
-        gradle --refresh-dependencies ${GRADLE_PROPERTIES} build ${signArchives} install -x test
+        gradle --refresh-dependencies --stacktrace ${GRADLE_PROPERTIES} build ${signArchives} install -x test
     else
-        gradle --refresh-dependencies ${GRADLE_PROPERTIES} build ${signArchives} integrationTest install
+        gradle --refresh-dependencies --stacktrace ${GRADLE_PROPERTIES} build ${signArchives} integrationTest install
     fi
 }
 
 gradle_publish_artifact() {
-    gradle ${GRADLE_PROPERTIES} uploadArchives -x test
+    gradle --stacktrace ${GRADLE_PROPERTIES} uploadArchives -x test
 }
 
 gradle_publish_site(){
@@ -443,7 +443,7 @@ if [ -n "${MAVEN_SETTINGS_SECURITY_FILE}" ]; then
 fi
 echo "GRADLE_PROPERTIES: ${GRADLE_PROPERTIES}"
 
-gradle ${GRADLE_PROPERTIES} -version
+gradle --stacktrace ${GRADLE_PROPERTIES} -version
 # <<<<<<<<<< ---------- lib_gradle ---------- <<<<<<<<<<
 
 analysis() {

@@ -216,6 +216,14 @@ maven_analysis() {
     fi
 }
 
+maven_clean() {
+    if [ "true" == "${BUILD_PUBLISH_DEPLOY_SEGREGATION}" ]; then
+        mvn ${MAVEN_SETTINGS} clean org.apache.maven.plugins:maven-antrun-plugin:run@clean-local-deploy-dir
+    else
+        mvn ${MAVEN_SETTINGS} clean
+    fi
+}
+
 maven_test_and_build() {
     echo "maven_test_and_build"
     # 构建阶段的docker build不会执行, 因为插件绑定的生命周期是通过开关控制的, BUILD_PUBLISH_DEPLOY_SEGREGATION
@@ -225,9 +233,9 @@ maven_test_and_build() {
 
     maven_pull_base_image
     if [ "true" == "${BUILD_PUBLISH_DEPLOY_SEGREGATION}" ]; then
-        mvn ${MAVEN_SETTINGS} -U clean org.apache.maven.plugins:maven-antrun-plugin:run@clean-local-deploy-dir deploy | ${FILTER_SCRIPT}
+        mvn ${MAVEN_SETTINGS} -U deploy | ${FILTER_SCRIPT}
     else
-        mvn ${MAVEN_SETTINGS} -U clean install | ${FILTER_SCRIPT}
+        mvn ${MAVEN_SETTINGS} -U install | ${FILTER_SCRIPT}
     fi
 }
 
@@ -393,14 +401,18 @@ gradle_analysis() {
     echo "gradle_analysis no-op"
 }
 
+gradle_clean() {
+    gradle ${GRADLE_PROPERTIES} clean
+}
+
 gradle_test_and_build() {
     local signArchives=""
     if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ] && [ -n "${GPG_PASSPHRASE}" ]; then signArchives="signArchives"; fi
     if [ -f secring.gpg ] && [ -z "${GPG_KEYID}" ]; then echo "GPG_KEYID not set, use 'gpg --list-keys' to find it (Rightmost 8 hex). exit."; exit 1; fi
     if [ "true" == "${BUILD_TEST_SKIP}" ]; then
-        gradle --refresh-dependencies ${GRADLE_PROPERTIES} clean build ${signArchives} install -x test
+        gradle --refresh-dependencies ${GRADLE_PROPERTIES} build ${signArchives} install -x test
     else
-        gradle --refresh-dependencies ${GRADLE_PROPERTIES} clean build ${signArchives} integrationTest install
+        gradle --refresh-dependencies ${GRADLE_PROPERTIES} build ${signArchives} integrationTest install
     fi
 }
 
@@ -437,6 +449,12 @@ gradle ${GRADLE_PROPERTIES} -version
 analysis() {
     echo "analysis @ $(pwd)";
     if [ -f pom.xml ]; then maven_analysis; fi
+}
+
+clean() {
+    echo "clean @ $(pwd)";
+    if [ -f pom.xml ]; then maven_clean; fi
+    if [ -f build.gradle ]; then gradle_clean; fi
 }
 
 test_and_build() {

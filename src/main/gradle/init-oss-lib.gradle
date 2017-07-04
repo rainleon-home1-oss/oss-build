@@ -4,30 +4,28 @@
 void setRepositories(project, ext) {
   def envMavenOpts = System.getenv("MAVEN_OPTS")
   if (envMavenOpts) {
-    def optionMirror = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.mirror=([^\\s]+)");
-    def mirror = optionMirror ? optionMirror.replace("-D${ext.infrastructure}-nexus.mirror=", "") : null
-    def optionRepositories = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.repositories=([^\\s]+)")
-    def repositories = optionRepositories ? optionRepositories.replace("-D${ext.infrastructure}-nexus.repositories=", "") : null
-    ext.nexusMirror = mirror ? mirror : null
-    ext.nexusRepositories = repositories ? repositories : null
-  } else if ("local" == "${ext.infrastructure}") {
+    def optionRepository = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.repository=([^\\s]+)")
+    def repository = optionRepository ? optionRepository.replace("-D${ext.infrastructure}-nexus.repository=", "") : null
+    ext.nexusMirror = repository ? repository + '/maven-public/' : null
+    ext.nexusRepository = repository ? repository : null
+  } else if ('local' == "${ext.infrastructure}") {
     ext.nexusMirror = 'http://nexus.local:28081/nexus/repository/maven-public/'
-    ext.nexusRepositories = 'http://nexus.local:28081/nexus/repository'
+    ext.nexusRepository = 'http://nexus.local:28081/nexus/repository'
   } else {
     ext.nexusMirror = null
-    ext.nexusRepositories = null
+    ext.nexusRepository = null
   }
 
-  if ("github" == "${ext.infrastructure}") {
+  if ('github' == "${ext.infrastructure}") {
     ext.repositoryReleases = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
     ext.repositorySnapshots = 'https://oss.sonatype.org/content/repositories/snapshots/'
-  } else if (ext.nexusRepositories?.trim()) {
-    if ('local'.equals(ext.infrastructure)) {
-      ext.repositoryReleases = "${ext.nexusRepositories}/maven-releases/"
-      ext.repositorySnapshots = "${ext.nexusRepositories}/maven-snapshots/"
+  } else if (ext.nexusRepository?.trim()) {
+    if ('local' == "${ext.infrastructure}") {
+      ext.repositoryReleases = "${ext.nexusRepository}/maven-releases/"
+      ext.repositorySnapshots = "${ext.nexusRepository}/maven-snapshots/"
     } else {
-      ext.repositoryReleases = "${ext.nexusRepositories}/maven-releases/"
-      ext.repositorySnapshots = "${ext.nexusRepositories}/maven-snapshots/"
+      ext.repositoryReleases = "${ext.nexusRepository}/maven-releases/"
+      ext.repositorySnapshots = "${ext.nexusRepository}/maven-snapshots/"
     }
   } else {
     ext.repositoryReleases = null
@@ -161,7 +159,7 @@ allprojects {
     println "branch: " + ext.branch
     println "infrastructure: " + ext.infrastructure
     println "nexusMirror: " + ext.nexusMirror
-    println "nexusRepositories: " + ext.nexusRepositories
+    println "nexusRepository: " + ext.nexusRepository
     println "revision: " + ext.revision
     println "settingsFileOpt: " + ext.settingsFileOpt + ", securityFileOpt: " + ext.securityFileOpt
     println "repositoryReleases: " + ext.repositoryReleases
@@ -274,7 +272,7 @@ allprojects {
       }
     }
 
-    if (nexusRepositories?.trim() && repositorySnapshots?.trim()) {
+    if (nexusRepository?.trim() && repositorySnapshots?.trim()) {
       println "uploadArchives: true, gpgEnabled: ${gpgEnabled}"
       uploadArchives {
         repositories {

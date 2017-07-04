@@ -495,7 +495,7 @@ function whether_perform_command() {
         if [ "true" == "${BUILD_SITE}" ]; then
             return
         fi
-    elif [[ "${cmd}" == *test_and_build ]]; then
+    elif ([[ "${cmd}" == *test_and_build ]] || [[ "${cmd}" == *clean ]]); then
         return
     elif [ "true" == "${is_on_origin_repo}" ]; then
         case "${build_ref_name}" in
@@ -508,7 +508,7 @@ function whether_perform_command() {
                 fi
                 ;;
             feature*|hotfix*|"master"|*)
-                if [[ "${cmd}" == *test_and_build ]]; then
+                if ([[ "${cmd}" == *test_and_build ]] || [[ "${cmd}" == *clean ]]); then
                     return
                 fi
                 ;;

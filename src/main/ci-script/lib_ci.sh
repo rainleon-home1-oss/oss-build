@@ -518,8 +518,8 @@ function whether_perform_command() {
     false
 }
 
-COMMANDS_SKIPPED=()
-COMMANDS_WILL_PERFORM=()
+export COMMANDS_SKIPPED=()
+export COMMANDS_WILL_PERFORM=()
 for element in $@; do
     echo "Test command: '${element}'"
     if whether_perform_command "${IS_ON_ORIGIN_REPO}" "${BUILD_REF_NAME}" "${element}"; then

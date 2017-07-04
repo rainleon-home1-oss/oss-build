@@ -409,6 +409,8 @@ gradle_test_and_build() {
     local signArchives=""
     if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ] && [ -n "${GPG_PASSPHRASE}" ]; then signArchives="signArchives"; fi
     if [ -f secring.gpg ] && [ -z "${GPG_KEYID}" ]; then echo "GPG_KEYID not set, use 'gpg --list-keys' to find it (Rightmost 8 hex). exit."; exit 1; fi
+
+    rm -rf build/reports build/test-results
     if [ "true" == "${BUILD_TEST_SKIP}" ]; then
         gradle --refresh-dependencies --stacktrace ${GRADLE_PROPERTIES} build ${signArchives} install -x test
     else
@@ -518,8 +520,8 @@ function whether_perform_command() {
     false
 }
 
-COMMANDS_SKIPPED=()
-COMMANDS_WILL_PERFORM=()
+export COMMANDS_SKIPPED=()
+export COMMANDS_WILL_PERFORM=()
 for element in $@; do
     echo "Test command: '${element}'"
     if whether_perform_command "${IS_ON_ORIGIN_REPO}" "${BUILD_REF_NAME}" "${element}"; then

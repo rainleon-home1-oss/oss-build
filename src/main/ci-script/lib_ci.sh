@@ -448,7 +448,7 @@ test_and_build() {
 publish_artifact() {
     echo "publish @ $(pwd)";
     if [ -f pom.xml ]; then maven_publish_artifact; fi
-    if [ -f build.gradle ]; then gradle_publish; fi
+    if [ -f build.gradle ]; then gradle_publish_artifact; fi
 }
 
 publish_site(){

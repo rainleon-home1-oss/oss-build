@@ -183,7 +183,7 @@ allprojects {
     mavenLocal()
     //maven { url 'file://' + new File(System.getProperty('user.home'), '.m2/repository').absolutePath
     if (nexusMirror?.trim()) {
-      println "proxy repositories using: ${ext.infrastructure} ${nexusMirror}"
+      println "proxy repositories using: ${infrastructure} ${nexusMirror}"
       maven { url "${nexusMirror}" }
     }
     mavenCentral()

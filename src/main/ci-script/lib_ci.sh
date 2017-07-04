@@ -404,7 +404,7 @@ gradle_test_and_build() {
     fi
 }
 
-gradle_publish() {
+gradle_publish_artifact() {
     gradle ${GRADLE_PROPERTIES} uploadArchives -x test
 }
 

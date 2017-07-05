@@ -272,7 +272,7 @@ allprojects {
       }
     }
 
-    if (nexusRepository?.trim() && repositorySnapshots?.trim()) {
+    if (repositoryReleases?.trim() || repositorySnapshots?.trim()) {
       println "uploadArchives: true, gpgEnabled: ${gpgEnabled}"
       uploadArchives {
         repositories {

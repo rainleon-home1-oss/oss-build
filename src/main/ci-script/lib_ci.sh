@@ -410,7 +410,9 @@ gradle_test_and_build() {
     if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ] && [ -n "${GPG_PASSPHRASE}" ]; then signArchives="signArchives"; fi
     if [ -f secring.gpg ] && [ -z "${GPG_KEYID}" ]; then echo "GPG_KEYID not set, use 'gpg --list-keys' to find it (Rightmost 8 hex). exit."; exit 1; fi
 
-    rm -rf build/reports build/test-results
+    find . -type d -wholename "**/build/test-results" | xargs rm -rf
+    find . -type d -wholename "**/build/reports" | xargs rm -rf
+
     if [ "true" == "${BUILD_TEST_SKIP}" ]; then
         gradle --refresh-dependencies --stacktrace ${GRADLE_PROPERTIES} build ${signArchives} install -x test
     else

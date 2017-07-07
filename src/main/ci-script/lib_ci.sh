@@ -14,14 +14,14 @@ if [ -z "${INTERNAL_DOCKER_REGISTRY}" ]; then INTERNAL_DOCKER_REGISTRY="registry
 echo "INTERNAL_DOCKER_REGISTRY: ${INTERNAL_DOCKER_REGISTRY}"
 if [ -z "${INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX="http://gitlab.internal"; fi
 echo "INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX: ${INTERNAL_INFRASTRUCTURE_CONF_GIT_PREFIX}"
-if [ -z "${INTERNAL_NEXUS}" ]; then INTERNAL_NEXUS="http://nexus.internal/nexus/repository"; fi
-echo "INTERNAL_NEXUS: ${INTERNAL_NEXUS}"
+if [ -z "${INTERNAL_NEXUS3}" ]; then INTERNAL_NEXUS3="http://nexus3.internal"; fi
+echo "INTERNAL_NEXUS3: ${INTERNAL_NEXUS3}"
 if [ -z "${LOCAL_DOCKER_REGISTRY}" ]; then LOCAL_DOCKER_REGISTRY="registry.docker.local"; fi
 echo "LOCAL_DOCKER_REGISTRY: ${LOCAL_DOCKER_REGISTRY}"
 if [ -z "${LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX="http://gitlab.local:10080"; fi
 echo "LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX: ${LOCAL_INFRASTRUCTURE_CONF_GIT_PREFIX}"
-if [ -z "${LOCAL_NEXUS}" ]; then LOCAL_NEXUS="http://nexus.local:28081/nexus/repository"; fi
-echo "LOCAL_NEXUS: ${LOCAL_NEXUS}"
+if [ -z "${LOCAL_NEXUS3}" ]; then LOCAL_NEXUS3="http://nexus3.local:28081"; fi
+echo "LOCAL_NEXUS3: ${LOCAL_NEXUS3}"
 ### OSS CI INFRASTRUCTURE VARIABLES END
 
 ### FUNCTIONS BEGIN
@@ -185,7 +185,7 @@ if [ "200" == "${curl_response}" ]; then
     echo "Download file: curl -o ${HOME}/.docker/config.json ${curl_hidden} > /dev/null"
     curl -o ${HOME}/.docker/config.json -H "PRIVATE-TOKEN: ${INFRASTRUCTURE_CONF_GIT_TOKEN}" -H 'Cache-Control: no-cache' -L -s -t utf-8 ${INFRASTRUCTURE_CONF_LOC}/src/main/docker/config.json > /dev/null
 fi
-
+# TODO NEXUS3_DEPLOYMENT_PASSWORD for docker login when using internal infrastructure
 if [ -n "${DOCKERHUB_PASS}" ] && [ -n "${DOCKERHUB_USER}" ]; then
     docker login -p="${DOCKERHUB_PASS}" -u="${DOCKERHUB_USER}" https://registry-1.docker.io/v1/
     docker login -p="${DOCKERHUB_PASS}" -u="${DOCKERHUB_USER}" https://registry-1.docker.io/v2/
@@ -324,8 +324,8 @@ export MAVEN_OPTS="${MAVEN_OPTS} -Ddependency-check=${BUILD_DEPENDENCY_CHECK}"
 export MAVEN_OPTS="${MAVEN_OPTS} -Ddocker.registry=${DOCKER_REGISTRY}"
 export MAVEN_OPTS="${MAVEN_OPTS} -Dfile.encoding=UTF-8"
 export MAVEN_OPTS="${MAVEN_OPTS} -Dinfrastructure=${INFRASTRUCTURE}"
-if [ -n "${INTERNAL_NEXUS}" ]; then export MAVEN_OPTS="${MAVEN_OPTS} -Dinternal-nexus.repository=${INTERNAL_NEXUS}"; fi
-if [ -n "${LOCAL_NEXUS}" ]; then export MAVEN_OPTS="${MAVEN_OPTS} -Dlocal-nexus.repository=${LOCAL_NEXUS}"; fi
+if [ -n "${INTERNAL_NEXUS3}" ]; then export MAVEN_OPTS="${MAVEN_OPTS} -Dinternal-nexus3.repository=${INTERNAL_NEXUS3}/nexus/repository"; fi
+if [ -n "${LOCAL_NEXUS3}" ]; then export MAVEN_OPTS="${MAVEN_OPTS} -Dlocal-nexus3.repository=${LOCAL_NEXUS3}/nexus/repository"; fi
 export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.test.failure.ignore=${BUILD_TEST_FAILURE_IGNORE}"
 export MAVEN_OPTS="${MAVEN_OPTS} -Dsite=${BUILD_SITE} -Dsite.path=${BUILD_SITE_PATH_PREFIX}-${BUILD_PUBLISH_CHANNEL}"
 export MAVEN_OPTS="${MAVEN_OPTS} -Duser.language=zh -Duser.region=CN -Duser.timezone=Asia/Shanghai"
@@ -393,6 +393,7 @@ mvn ${MAVEN_SETTINGS} -version
 if [ -z "${MAVEN_EFFECTIVE_POM_FILE}" ]; then MAVEN_EFFECTIVE_POM_FILE="${BUILD_CACHE}/effective-pom-${BUILD_COMMIT_ID}.xml"; fi
 echo "MAVEN_EFFECTIVE_POM_FILE: ${MAVEN_EFFECTIVE_POM_FILE}"
 mvn ${MAVEN_SETTINGS} help:effective-pom | grep 'Downloading:' | awk '!(NR%10)'
+# TODO output effective-pom file on error
 mvn ${MAVEN_SETTINGS} help:effective-pom > ${MAVEN_EFFECTIVE_POM_FILE}
 # <<<<<<<<<< ---------- lib_maven ---------- <<<<<<<<<<
 

@@ -9,7 +9,7 @@
     <name>oss-build</name>
     <packaging>pom</packaging>
     <url>https://github.com/home1-oss/oss-build</url>
-    <version>1.0.10.OSS</version>
+    <version>1.0.11.OSS</version>
 
     <ciManagement>
         <system>Travis CI</system>
@@ -997,15 +997,15 @@
                 <github.site.path>${project.version}/${project.artifactId}</github.site.path>
                 -->
                 <maven.site.deploy.skip>true</maven.site.deploy.skip>
-                <wagon.merge-maven-repos.targetId>github-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
+                <wagon.merge-maven-repos.targetId>OSSRH-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
             </properties>
             <distributionManagement>
                 <repository>
-                    <id>github-nexus-releases</id>
+                    <id>OSSRH-releases</id>
                     <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
                 </repository>
                 <snapshotRepository>
-                    <id>github-nexus-snapshots</id>
+                    <id>OSSRH-snapshots</id>
                     <url>https://oss.sonatype.org/content/repositories/snapshots</url>
                 </snapshotRepository>
                 <!-- Do mvn site site:stage -DstagingDirectory=/tmp/path first,
@@ -1061,7 +1061,7 @@
                         <version>1.6.8</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <serverId>github-nexus-snapshots</serverId>
+                            <serverId>OSSRH-snapshots</serverId>
                             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
@@ -1079,24 +1079,24 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <wagon.merge-maven-repos.target>${internal-nexus.repository}/maven-${build.publish.channel}s</wagon.merge-maven-repos.target>
-                <wagon.merge-maven-repos.targetId>internal-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
+                <wagon.merge-maven-repos.target>${internal-nexus3.repository}/maven-${build.publish.channel}s</wagon.merge-maven-repos.target>
+                <wagon.merge-maven-repos.targetId>internal-nexus3-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
                 <docker-maven.useConfigFile>true</docker-maven.useConfigFile>
             </properties>
             <distributionManagement>
                 <repository>
-                    <id>internal-nexus-releases</id>
-                    <url>${internal-nexus.repository}/maven-releases</url>
+                    <id>internal-nexus3-releases</id>
+                    <url>${internal-nexus3.repository}/maven-releases</url>
                 </repository>
                 <snapshotRepository>
-                    <id>internal-nexus-snapshots</id>
-                    <url>${internal-nexus.repository}/maven-snapshots</url>
+                    <id>internal-nexus3-snapshots</id>
+                    <url>${internal-nexus3.repository}/maven-snapshots</url>
                 </snapshotRepository>
                 <site>
                     <id>internal-mvnsite</id>
                     <!-- scpexe uses privateKey, scp uses password -->
                     <!-- scpexe://${domain_or_ip}:22/path/to/sites -->
-                    <url>dav:${internal-nexus.repository}/mvnsite/${site.path}</url>
+                    <url>dav:${internal-nexus3.repository}/mvnsite/${site.path}</url>
                 </site>
             </distributionManagement>
         </profile>
@@ -1110,22 +1110,22 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <wagon.merge-maven-repos.target>${local-nexus.repository}/maven-${build.publish.channel}s</wagon.merge-maven-repos.target>
-                <wagon.merge-maven-repos.targetId>local-nexus-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
+                <wagon.merge-maven-repos.target>${local-nexus3.repository}/maven-${build.publish.channel}s</wagon.merge-maven-repos.target>
+                <wagon.merge-maven-repos.targetId>local-nexus3-${build.publish.channel}s</wagon.merge-maven-repos.targetId>
                 <docker-maven.useConfigFile>false</docker-maven.useConfigFile>
             </properties>
             <distributionManagement>
                 <repository>
-                    <id>local-nexus-releases</id>
-                    <url>${local-nexus.repository}/maven-releases/</url>
+                    <id>local-nexus3-releases</id>
+                    <url>${local-nexus3.repository}/maven-releases/</url>
                 </repository>
                 <snapshotRepository>
-                    <id>local-nexus-snapshots</id>
-                    <url>${local-nexus.repository}/maven-snapshots/</url>
+                    <id>local-nexus3-snapshots</id>
+                    <url>${local-nexus3.repository}/maven-snapshots/</url>
                 </snapshotRepository>
                 <site>
                     <id>local-mvnsite</id>
-                    <url>dav:${local-nexus.repository}/mvnsite/${site.path}</url>
+                    <url>dav:${local-nexus3.repository}/mvnsite/${site.path}</url>
                 </site>
             </distributionManagement>
         </profile>

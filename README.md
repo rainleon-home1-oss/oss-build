@@ -1,9 +1,9 @@
-[![Build Status](https://travis-ci.org/home1-oss/oss-build.svg?branch=develop)](https://travis-ci.org/home1-oss/oss-build)
+[![Build Status](https://travis-ci.org/home1-oss/oss-build.svg?branch=master)](https://travis-ci.org/home1-oss/oss-build)
 
 -----
 如果你正在通过git服务查看此文档，请移步项目网站或gitbook查看文档，因为git服务生成的文档链接有问题。
-+ [gitbook](http://mvn-site.internal/oss-build-develop/gitbook)
-+ [maven网站](http://home1-oss.github.io/oss-build/1.0.10.OSS)
++ [gitbook](https://home1-oss.github.io/home1-oss-gitbook/release/)
++ [maven网站](https://home1-oss.github.io/home1-oss/release/)
 -----
 
 # oss是什么

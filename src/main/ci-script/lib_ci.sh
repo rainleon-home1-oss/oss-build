@@ -392,9 +392,16 @@ mvn ${MAVEN_SETTINGS} -version
 # log output avoid travis timeout
 if [ -z "${MAVEN_EFFECTIVE_POM_FILE}" ]; then MAVEN_EFFECTIVE_POM_FILE="${BUILD_CACHE}/effective-pom-${BUILD_COMMIT_ID}.xml"; fi
 echo "MAVEN_EFFECTIVE_POM_FILE: ${MAVEN_EFFECTIVE_POM_FILE}"
-mvn ${MAVEN_SETTINGS} help:effective-pom | grep 'Downloading:' | awk '!(NR%10)'
-# TODO output effective-pom file on error
+set +e
+mvn ${MAVEN_SETTINGS} -U help:effective-pom | grep 'Downloading:' | awk '!(NR%10)'
 mvn ${MAVEN_SETTINGS} help:effective-pom > ${MAVEN_EFFECTIVE_POM_FILE}
+ret_val=$?
+if [ ${ret_val} -ne 0 ]; then
+    echo "error on generate effective-pom"
+    cat ${MAVEN_EFFECTIVE_POM_FILE}
+    exit 1
+fi
+set -e
 # <<<<<<<<<< ---------- lib_maven ---------- <<<<<<<<<<
 
 # >>>>>>>>>> ---------- lib_gradle ---------- >>>>>>>>>>

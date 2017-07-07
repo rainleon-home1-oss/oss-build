@@ -52,15 +52,15 @@ else
 fi
 
 if [ "local" == "${INFRASTRUCTURE}" ]; then
-    NEXUS_REPO_RELEASES="${LOCAL_NEXUS}/repository/maven-releases";
-    NEXUS_REPO_SNAPSHOTS="${LOCAL_NEXUS}/repository/maven-snapshots";
-    NEXUS_REPO_THIRDPARTY="${LOCAL_NEXUS}/repository/maven-thirdparty";
-    NEXUS_REPO_ID="local-nexus-thirdparty";
+    NEXUS_REPO_RELEASES="${LOCAL_NEXUS3}/nexus/repository/maven-releases";
+    NEXUS_REPO_SNAPSHOTS="${LOCAL_NEXUS3}/nexus/repository/maven-snapshots";
+    NEXUS_REPO_THIRDPARTY="${LOCAL_NEXUS3}/nexus/repository/maven-thirdparty";
+    NEXUS_REPO_ID="local-nexus3-thirdparty";
 else
-    NEXUS_REPO_RELEASES="${INTERNAL_NEXUS}/content/repositories/releases";
-    NEXUS_REPO_SNAPSHOTS="${INTERNAL_NEXUS}/content/repositories/snapshots";
-    NEXUS_REPO_THIRDPARTY="${INTERNAL_NEXUS}/content/repositories/thirdparty";
-    NEXUS_REPO_ID="internal-nexus-thirdparty";
+    NEXUS_REPO_RELEASES="${INTERNAL_NEXUS3}/nexus/repository/maven-releases";
+    NEXUS_REPO_SNAPSHOTS="${INTERNAL_NEXUS3}/nexus/repository/maven-snapshots";
+    NEXUS_REPO_THIRDPARTY="${INTERNAL_NEXUS3}/nexus/repository/maven-thirdparty";
+    NEXUS_REPO_ID="internal-nexus3-thirdparty";
 fi
 
 # ${GROUP_ID//.//} replace all dots with slashs

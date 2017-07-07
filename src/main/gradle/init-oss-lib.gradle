@@ -2,36 +2,6 @@
 // see: http://blog.csdn.net/sbsujjbcy/article/details/52079413
 
 void setRepositories(project, ext) {
-  def envMavenOpts = System.getenv("MAVEN_OPTS")
-  if (envMavenOpts) {
-    def optionRepository = envMavenOpts.find("-D${ext.infrastructure}-nexus\\.repository=([^\\s]+)")
-    def repository = optionRepository ? optionRepository.replace("-D${ext.infrastructure}-nexus.repository=", "") : null
-    ext.nexusMirror = repository ? repository + '/maven-public/' : null
-    ext.nexusRepository = repository ? repository : null
-  } else if ('local' == "${ext.infrastructure}") {
-    ext.nexusMirror = 'http://nexus.local:28081/nexus/repository/maven-public/'
-    ext.nexusRepository = 'http://nexus.local:28081/nexus/repository'
-  } else {
-    ext.nexusMirror = null
-    ext.nexusRepository = null
-  }
-
-  if ('github' == "${ext.infrastructure}") {
-    ext.repositoryReleases = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-    ext.repositorySnapshots = 'https://oss.sonatype.org/content/repositories/snapshots/'
-  } else if (ext.nexusRepository?.trim()) {
-    if ('local' == "${ext.infrastructure}") {
-      ext.repositoryReleases = "${ext.nexusRepository}/maven-releases/"
-      ext.repositorySnapshots = "${ext.nexusRepository}/maven-snapshots/"
-    } else {
-      ext.repositoryReleases = "${ext.nexusRepository}/maven-releases/"
-      ext.repositorySnapshots = "${ext.nexusRepository}/maven-snapshots/"
-    }
-  } else {
-    ext.repositoryReleases = null
-    ext.repositorySnapshots = null
-  }
-
   ext.settingsFileOpt = project.hasProperty('settings') ? project.getProperty('settings') : ""
   ext.securityFileOpt = project.hasProperty('settings.security') ? project.getProperty('settings.security') : ""
   if (ext.settingsFileOpt || ext.securityFileOpt) {
@@ -40,10 +10,46 @@ void setRepositories(project, ext) {
     ext.mavenSettings = new cn.home1.tools.maven.SettingsDecoder()
   }
 
-  ext.repositoryReleasesUser = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/username/text()")
-  ext.repositoryReleasesPass = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/password/text()")
-  ext.repositorySnapshotsUser = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-snapshots']/username/text()")
-  ext.repositorySnapshotsPass = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-snapshots']/password/text()")
+  def envMavenOpts = System.getenv("MAVEN_OPTS")
+  if (envMavenOpts) {
+    def optionRepository = envMavenOpts.find("-D${ext.infrastructure}-nexus3\\.repository=([^\\s]+)")
+    def repository = optionRepository ? optionRepository.replace("-D${ext.infrastructure}-nexus3.repository=", "") : null
+    ext.nexusMirror = repository ? repository + '/maven-public/' : null
+    ext.nexusRepository = repository ? repository : null
+  } else if ('local' == "${ext.infrastructure}") {
+    ext.nexusMirror = 'http://nexus3.local:28081/nexus/repository/maven-public/'
+    ext.nexusRepository = 'http://nexus3.local:28081/nexus/repository'
+  } else {
+    ext.nexusMirror = null
+    ext.nexusRepository = null
+  }
+
+  if ('github' == "${ext.infrastructure}") {
+    ext.repositoryReleases = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+    ext.repositorySnapshots = 'https://oss.sonatype.org/content/repositories/snapshots/'
+    ext.repositoryReleasesUser = ext.mavenSettings.getText("//server[id='OSSRH-releases']/username/text()")
+    ext.repositoryReleasesPass = ext.mavenSettings.getText("//server[id='OSSRH-releases']/password/text()")
+    ext.repositorySnapshotsUser = ext.mavenSettings.getText("//server[id='OSSRH-snapshots']/username/text()")
+    ext.repositorySnapshotsPass = ext.mavenSettings.getText("//server[id='OSSRH-snapshots']/password/text()")
+  } else {
+    if (ext.nexusRepository?.trim()) {
+      if ('local' == "${ext.infrastructure}") {
+        ext.repositoryReleases = "${ext.nexusRepository}/maven-releases/"
+        ext.repositorySnapshots = "${ext.nexusRepository}/maven-snapshots/"
+      } else {
+        ext.repositoryReleases = "${ext.nexusRepository}/maven-releases/"
+        ext.repositorySnapshots = "${ext.nexusRepository}/maven-snapshots/"
+      }
+    } else {
+      ext.repositoryReleases = null
+      ext.repositorySnapshots = null
+    }
+
+    ext.repositoryReleasesUser = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus3-releases']/username/text()")
+    ext.repositoryReleasesPass = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus3-releases']/password/text()")
+    ext.repositorySnapshotsUser = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus3-snapshots']/username/text()")
+    ext.repositorySnapshotsPass = ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus3-snapshots']/password/text()")
+  }
 }
 
 def pomConfig = {
@@ -164,10 +170,9 @@ allprojects {
     println "settingsFileOpt: " + ext.settingsFileOpt + ", securityFileOpt: " + ext.securityFileOpt
     println "repositoryReleases: " + ext.repositoryReleases
     println "repositorySnapshots: " + ext.repositorySnapshots
-    // TODO fix local-nexus-releases and local-nexus-snapshots
     if ("github" != "${ext.infrastructure}") {
-      println "${ext.infrastructure}-nexus-releases username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-releases']/username/text()")
-      println "${ext.infrastructure}-nexus-snapshots username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus-snapshots']/username/text()")
+      println "${ext.infrastructure}-nexus3-releases username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus3-releases']/username/text()")
+      println "${ext.infrastructure}-nexus3-snapshots username: " + ext.mavenSettings.getText("//server[id='${ext.infrastructure}-nexus3-snapshots']/username/text()")
     }
     println "gpgEnabled: " + ext.gpgEnabled
     println "isReleaseVersion: " + ext.isReleaseVersion

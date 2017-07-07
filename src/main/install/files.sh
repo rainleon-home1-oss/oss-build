@@ -16,7 +16,7 @@ OSS_FILES_DICT["docker-machine-Linux-x86_64-v0.9.0"]="https://github.com/docker/
 OSS_FILES_DICT["docker-compose-Linux-x86_64-1.10.0"]="https://github.com/docker/compose/releases/download/1.10.0/docker-compose-Linux-x86_64"
 # https://circle-artifacts.com/gh/andyshinn/alpine-pkg-glibc/6/artifacts/0/home/ubuntu/alpine-pkg-glibc/packages/x86_64/glibc-2.21-r2.apk
 OSS_FILES_DICT["glibc-2.23-r3.apk"]="https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.23-r3/glibc-2.23-r3.apk"
-OSS_FILES_DICT["jdk-8u101-linux-x64.tar.gz"]="http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-x64.tar.gz"
+OSS_FILES_DICT["jdk-8u131-linux-x64.tar.gz"]="http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz"
 OSS_FILES_DICT["jce_policy-8.zip"]="http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip"
 # H "Cookie: oraclelicense=accept-securebackup-cookie"
 # -b "oraclelicense=accept-securebackup-cookie"
@@ -26,7 +26,7 @@ OSS_FILES_DICT["waitforit-linux_amd64-v1.3.2"]="https://github.com/maxcnunes/wai
 OSS_FILES_DICT["waitforit-linux_amd64-v1.4.0"]="https://github.com/maxcnunes/waitforit/releases/download/v1.4.0/waitforit-linux_amd64"
 OSS_FILES_DICT["docker-registry.crt"]="http://o9wbz99tz.bkt.clouddn.com/docker-registry.crt?v=fuck_cdn_cache_$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n 1)"
 
-DOWNLOAD_CACHE="${HOME}/.oss-cache"
+DOWNLOAD_CACHE="${HOME}/.oss/download-cache"
 mkdir -p ${DOWNLOAD_CACHE}
 
 for filename in ${!OSS_FILES_DICT[@]}; do

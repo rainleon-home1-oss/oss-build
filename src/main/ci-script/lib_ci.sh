@@ -185,7 +185,7 @@ if [ "200" == "${curl_response}" ]; then
     echo "Download file: curl -o ${HOME}/.docker/config.json ${curl_hidden} > /dev/null"
     curl -o ${HOME}/.docker/config.json -H "PRIVATE-TOKEN: ${INFRASTRUCTURE_CONF_GIT_TOKEN}" -H 'Cache-Control: no-cache' -L -s -t utf-8 ${INFRASTRUCTURE_CONF_LOC}/src/main/docker/config.json > /dev/null
 fi
-# TODO NEXUS3_DEPLOYMENT_PASSWORD
+# TODO NEXUS3_DEPLOYMENT_PASSWORD for docker login when using internal infrastructure
 if [ -n "${DOCKERHUB_PASS}" ] && [ -n "${DOCKERHUB_USER}" ]; then
     docker login -p="${DOCKERHUB_PASS}" -u="${DOCKERHUB_USER}" https://registry-1.docker.io/v1/
     docker login -p="${DOCKERHUB_PASS}" -u="${DOCKERHUB_USER}" https://registry-1.docker.io/v2/
@@ -393,6 +393,7 @@ mvn ${MAVEN_SETTINGS} -version
 if [ -z "${MAVEN_EFFECTIVE_POM_FILE}" ]; then MAVEN_EFFECTIVE_POM_FILE="${BUILD_CACHE}/effective-pom-${BUILD_COMMIT_ID}.xml"; fi
 echo "MAVEN_EFFECTIVE_POM_FILE: ${MAVEN_EFFECTIVE_POM_FILE}"
 mvn ${MAVEN_SETTINGS} help:effective-pom | grep 'Downloading:' | awk '!(NR%10)'
+# TODO output effective-pom file on error
 mvn ${MAVEN_SETTINGS} help:effective-pom > ${MAVEN_EFFECTIVE_POM_FILE}
 # <<<<<<<<<< ---------- lib_maven ---------- <<<<<<<<<<
 

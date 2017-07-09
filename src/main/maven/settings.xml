@@ -10,9 +10,17 @@
     <offline/>
 
     <proxies>
+        <!--proxy>
+            <id>http-proxy</id>
+            <active>true</active>
+            <protocol>http</protocol>
+            <host>127.0.0.1</host>
+            <port>8080</port>
+        </proxy-->
     </proxies>
 
     <mirrors>
+        <!-- Do not use variable substitution in mirrors when using an IDE, it does not works. -->
         <!-- mirrorOf: pom.xml repositories repository id -->
         <!--mirror>
             <id>local-nexus3-mirror</id>
@@ -234,7 +242,7 @@
             <id>infrastructure-local</id>
             <properties>
                 <sonar.host.url>${local-sonar.host.url}</sonar.host.url>
-                <!--sonar.jdbc.url>jdbc:h2:tcp://local-sonarqube/sonar</sonar.jdbc.url>
+                <!--sonar.jdbc.url>jdbc:h2:tcp://sonarqube.local/sonar</sonar.jdbc.url>
                 <sonar.jdbc.url>jdbc:postgresql://postgresql.local:5432/sonar</sonar.jdbc.url-->
             </properties>
             <repositories>

@@ -989,7 +989,6 @@
                 <docker-maven.useConfigFile>true</docker-maven.useConfigFile>
                 <!-- id as in your settings.xml -->
                 <github.global.server>github</github.global.server>
-                <!--github.global.oauth2Token>${env.GITHUB_INFRASTRUCTURE_CONF_GIT_TOKEN}</github.global.oauth2Token-->
                 <github.global.oauth2Token>${env.GITHUB_INFRASTRUCTURE_CONF_GIT_TOKEN}</github.global.oauth2Token>
                 <!--<github.site.path>${project.version}</github.site.path>-->
                 <!-- In child projects

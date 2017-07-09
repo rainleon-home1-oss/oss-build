@@ -51,3 +51,6 @@ stages:
 - analysis
 - build
 - publish
+
+# see: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/ci/yaml/README.md
+# see: https://gitlab.com/gitlab-org/gitlab-ce/issues/3423

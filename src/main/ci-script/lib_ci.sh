@@ -133,6 +133,7 @@ echo "USER: $(whoami)"
 ### OSS CI CONTEXT VARIABLES BEGIN
 if [ -z "${INFRASTRUCTURE}" ]; then INFRASTRUCTURE="$(infrastructure)"; fi
 echo "INFRASTRUCTURE: ${INFRASTRUCTURE}"
+export INFRASTRUCTURE
 if [ -z "${LIB_CI_SCRIPT}" ]; then LIB_CI_SCRIPT="https://github.com/home1-oss/oss-build/raw/master/src/main/ci-script/lib_ci.sh"; fi
 echo "LIB_CI_SCRIPT: ${LIB_CI_SCRIPT}"
 # Use lib_common.sh at same location as lib_ci.sh
@@ -142,6 +143,8 @@ echo "LIB_COMMON_SCRIPT: ${LIB_COMMON_SCRIPT}"
 # INFRASTRUCTURE specific values.
 DOCKER_REGISTRY_VAR="$(echo ${INFRASTRUCTURE} | tr '[:lower:]' '[:upper:]')_DOCKER_REGISTRY"
 if [ -n "$BASH_VERSION" ]; then DOCKER_REGISTRY="${!DOCKER_REGISTRY_VAR}"; elif [ -n "${ZSH_VERSION}" ]; then DOCKER_REGISTRY="${(P)DOCKER_REGISTRY_VAR}"; else echo "unsupported ${SHELL}"; fi
+echo "DOCKER_REGISTRY: ${DOCKER_REGISTRY}"
+export DOCKER_REGISTRY
 #FILESERVER_VAR="$(echo ${INFRASTRUCTURE} | tr '[:lower:]' '[:upper:]')_FILESERVER"
 #if [ -n "$BASH_VERSION" ]; then BUILD_FILESERVER="${!FILESERVER_VAR}"; elif [ -n "${ZSH_VERSION}" ]; then BUILD_FILESERVER="${(P)FILESERVER_VAR}"; else echo "unsupported ${SHELL}"; fi
 if [ -z "${INFRASTRUCTURE_CONF_GIT_PREFIX}" ]; then INFRASTRUCTURE_CONF_GIT_PREFIX="$(infrastructure_conf_git_prefix)"; fi

@@ -539,25 +539,29 @@ function whether_perform_command() {
     false
 }
 
-export COMMANDS_SKIPPED=()
-export COMMANDS_WILL_PERFORM=()
-for element in $@; do
-    echo "Test command: '${element}'"
-    if whether_perform_command "${IS_ON_ORIGIN_REPO}" "${BUILD_REF_NAME}" "${element}"; then
-        COMMANDS_WILL_PERFORM+=("${element}")
-    else
-        echo "Skip ${element} on IS_ON_ORIGIN_REPO: '${IS_ON_ORIGIN_REPO}' BUILD_REF_NAME: '${BUILD_REF_NAME}'"
-        COMMANDS_SKIPPED+=("${element}")
-    fi
-done
-echo "COMMANDS: '$@'"
-echo "COMMANDS_SKIPPED: '${COMMANDS_SKIPPED[@]}'"
-echo "COMMANDS_WILL_PERFORM: '${COMMANDS_WILL_PERFORM[@]}'"
+if [ -z "${BUILD_SKIP_COMMANDS_EXECUTION}" ] || [ "${BUILD_SKIP_COMMANDS_EXECUTION}" == "false" ]; then
+    export COMMANDS_SKIPPED=()
+    export COMMANDS_WILL_PERFORM=()
+    for element in $@; do
+        echo "Test command: '${element}'"
+        if whether_perform_command "${IS_ON_ORIGIN_REPO}" "${BUILD_REF_NAME}" "${element}"; then
+            COMMANDS_WILL_PERFORM+=("${element}")
+        else
+            echo "Skip ${element} on IS_ON_ORIGIN_REPO: '${IS_ON_ORIGIN_REPO}' BUILD_REF_NAME: '${BUILD_REF_NAME}'"
+            COMMANDS_SKIPPED+=("${element}")
+        fi
+    done
+    echo "COMMANDS: '$@'"
+    echo "COMMANDS_SKIPPED: '${COMMANDS_SKIPPED[@]}'"
+    echo "COMMANDS_WILL_PERFORM: '${COMMANDS_WILL_PERFORM[@]}'"
 
-echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> execute '${COMMANDS_WILL_PERFORM[@]}' >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-for command in ${COMMANDS_WILL_PERFORM[@]}; do
-    echo ">>>>>>>>>>>>>>>>>>>> execute '${command}' >>>>>>>>>>>>>>>>>>>>"
-    ${command}
-    echo "<<<<<<<<<<<<<<<<<<<< done '${command}' <<<<<<<<<<<<<<<<<<<<"
-done
-echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< done '${COMMANDS_WILL_PERFORM[@]}' <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+    echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>> execute '${COMMANDS_WILL_PERFORM[@]}' >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+    for command in ${COMMANDS_WILL_PERFORM[@]}; do
+        echo ">>>>>>>>>>>>>>>>>>>> execute '${command}' >>>>>>>>>>>>>>>>>>>>"
+        ${command}
+        echo "<<<<<<<<<<<<<<<<<<<< done '${command}' <<<<<<<<<<<<<<<<<<<<"
+    done
+    echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< done '${COMMANDS_WILL_PERFORM[@]}' <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+else
+    echo "SKIP_COMMANDS_EXECUTION"
+fi

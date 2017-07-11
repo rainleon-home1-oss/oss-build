@@ -227,10 +227,24 @@ maven_clean() {
     fi
 }
 
+# for maven multi-module project, that must execute 'mvn clean install' and 'mvn clean && mvn install' not works.
+maven_clean_test_and_build() {
+    echo "maven_clean_test_and_build"
+    export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.test.skip=${BUILD_TEST_SKIP}"
+    export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.integration-test.skip=${BUILD_TEST_SKIP}"
+
+    maven_pull_base_image
+    if [ "true" == "${BUILD_PUBLISH_DEPLOY_SEGREGATION}" ]; then
+        mvn ${MAVEN_SETTINGS} -U clean org.apache.maven.plugins:maven-antrun-plugin:run@clean-local-deploy-dir deploy | ${FILTER_SCRIPT}
+    else
+        mvn ${MAVEN_SETTINGS} -U clean install | ${FILTER_SCRIPT}
+    fi
+}
+
+# if BUILD_PUBLISH_DEPLOY_SEGREGATION==true, no docker image is built at package phase.
+# see profile 'skip-docker-plugin-lifecycle-binding-when-publish-deploy-segregation' in oss-build/pom.xml.
 maven_test_and_build() {
     echo "maven_test_and_build"
-    # 构建阶段的docker build不会执行, 因为插件绑定的生命周期是通过开关控制的, BUILD_PUBLISH_DEPLOY_SEGREGATION
-    # 具体参照 oss-build/pom.xml中定义的profile: skip-docker-plugin-lifecycle-binding-when-publish-deploy-segregation
     export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.test.skip=${BUILD_TEST_SKIP}"
     export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.integration-test.skip=${BUILD_TEST_SKIP}"
 
@@ -416,11 +430,7 @@ gradle_clean() {
     gradle --stacktrace ${GRADLE_PROPERTIES} clean
 }
 
-gradle_test_and_build() {
-    local signArchives=""
-    if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ] && [ -n "${GPG_PASSPHRASE}" ]; then signArchives="signArchives"; fi
-    if [ -f secring.gpg ] && [ -z "${GPG_KEYID}" ]; then echo "GPG_KEYID not set, use 'gpg --list-keys' to find it (Rightmost 8 hex). exit."; exit 1; fi
-
+gradle_clean_except_artifacts() {
     find . -type d -wholename "**/build/classes" | xargs rm -rf
     find . -type d -wholename "**/build/docs" | xargs rm -rf
     find . -type d -wholename "**/build/jacoco" | xargs rm -rf
@@ -429,6 +439,28 @@ gradle_test_and_build() {
     find . -type d -wholename "**/build/resources" | xargs rm -rf
     find . -type d -wholename "**/build/test-results" | xargs rm -rf
     find . -type d -wholename "**/build/tmp" | xargs rm -rf
+}
+
+gradle_clean_test_and_build() {
+    local signArchives=""
+    if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ] && [ -n "${GPG_PASSPHRASE}" ]; then signArchives="signArchives"; fi
+    if [ -f secring.gpg ] && [ -z "${GPG_KEYID}" ]; then echo "GPG_KEYID not set, use 'gpg --list-keys' to find it (Rightmost 8 hex). exit."; exit 1; fi
+
+    gradle_clean_except_artifacts
+
+    if [ "true" == "${BUILD_TEST_SKIP}" ]; then
+        gradle --refresh-dependencies --stacktrace ${GRADLE_PROPERTIES} clean build ${signArchives} install -x test
+    else
+        gradle --refresh-dependencies --stacktrace ${GRADLE_PROPERTIES} clean build ${signArchives} integrationTest install
+    fi
+}
+
+gradle_test_and_build() {
+    local signArchives=""
+    if [ -f secring.gpg ] && [ -n "${GPG_KEYID}" ] && [ -n "${GPG_PASSPHRASE}" ]; then signArchives="signArchives"; fi
+    if [ -f secring.gpg ] && [ -z "${GPG_KEYID}" ]; then echo "GPG_KEYID not set, use 'gpg --list-keys' to find it (Rightmost 8 hex). exit."; exit 1; fi
+
+    gradle_clean_except_artifacts
 
     if [ "true" == "${BUILD_TEST_SKIP}" ]; then
         gradle --refresh-dependencies --stacktrace ${GRADLE_PROPERTIES} build ${signArchives} install -x test
@@ -476,6 +508,12 @@ clean() {
     echo "clean @ $(pwd)";
     if [ -f pom.xml ]; then maven_clean; fi
     if [ -f build.gradle ]; then gradle_clean; fi
+}
+
+clean_test_and_build() {
+    echo "clean @ $(pwd)";
+    if [ -f pom.xml ]; then maven_clean_test_and_build; fi
+    if [ -f build.gradle ]; then gradle_clean_test_and_build; fi
 }
 
 test_and_build() {
